@@ -97,18 +97,12 @@
       letter-spacing: -0.02em;
     }
     .feature p { margin-top: 8px; color: var(--body); font-size: 14px; }
-    .strip {
-      display: flex;
-      height: 36px;
-      margin: 18px 0 14px;
-      overflow: hidden;
-    }
-    .strip .u { width: 42%; background: var(--ink); }
-    .strip .w {
-      flex: 1;
-      background: repeating-linear-gradient(-45deg, #e4e4e7, #e4e4e7 4px, #d4d4d8 4px, #d4d4d8 8px);
-      display: flex; align-items: center; justify-content: flex-end;
-      padding: 0 10px; font-size: 11px; color: #52525b;
+    .shot {
+      width: 100%;
+      display: block;
+      margin: 16px 0 14px;
+      border: 1px solid var(--rule);
+      background: #fff;
     }
     .go { font-size: 13px; font-weight: 500; }
 
@@ -165,10 +159,7 @@
         <div class="kicker">产品 · 2026</div>
         <h3>TokenLens</h3>
         <p>面向个人开发者的 AI 花费管家。把「看见花了多少」和「一键省下来」接成一条线：正在烧的会话、有用 / 浪费切开、编排 rtk 而不是再造一个压缩引擎。</p>
-        <div class="strip" aria-hidden="true">
-          <div class="u"></div>
-          <div class="w">斜纹是浪费 · 点进去</div>
-        </div>
+        <img class="shot" src="./tokenlens/preview/overview.png" alt="TokenLens 总览：本周花费切开有用和浪费">
         <div class="go">打开可交互原型 →</div>
       </a>
     </section>

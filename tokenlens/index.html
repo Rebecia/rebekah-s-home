@@ -468,7 +468,8 @@
   <script>
     (function () {
       var KEY = "tokenlens-opts";
-      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        || /(?:^|[?&])preview=1(?:&|$)/.test(location.search);
       function money(n) { return "$" + Number(n).toFixed(2); }
       function tok(n) { return n.toLocaleString("en-US"); }
       function load() {
