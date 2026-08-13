@@ -1,23 +1,25 @@
-# Xiaoyan Zhou 的作品主页
+# 作品集
 
-精选作品 **TokenLens**：给独立开发者的 AI 成本仪表盘。打开就能看钱在烧、哪段是浪费、一键编排省下来。
+这里收录了一些产品、设计与技术实践。点击作品名称可以查看完整介绍。
 
-[打开可交互原型](./tokenlens/index.html)
+## 作品
 
-![TokenLens 总览](tokenlens/preview/overview.png)
+### [TokenLens](./tokenlens/README.md)
 
-<p>
-<img src="tokenlens/preview/sessions.png" alt="会话" width="32%">
-<img src="tokenlens/preview/optimize.png" alt="优化" width="32%">
-<img src="tokenlens/preview/budget.png" alt="预算" width="32%">
-</p>
+面向个人开发者的 AI 成本仪表盘。它统一展示不同 AI 编程工具的使用成本，帮助用户定位浪费，并通过优化编排和预算管理把成本控制下来。
 
-单文件产品：[`tokenlens/index.html`](./tokenlens/index.html)  
-功能说明：[`tokenlens/功能介绍.md`](./tokenlens/功能介绍.md)  
-产品报告：[`tokenlens/TokenLens-产品报告.md`](./tokenlens/TokenLens-产品报告.md)
+[查看作品介绍](./tokenlens/README.md) · [打开交互原型](./tokenlens/index.html)
 
-## 其他项目
+![TokenLens 产品预览](./tokenlens/preview/overview.png)
 
-- [OSS-FGI](https://github.com/Rebecia/OSS-FGI)
-- [DataSSA](https://github.com/Rebecia/DataSSA)
-- [Pkg_Docker_Genr](https://github.com/Rebecia/Pkg_Docker_Genr)
+<!--
+新增作品时复制以下内容：
+
+### [作品名称](./项目目录/README.md)
+
+用一两句话简单介绍作品的用途和价值。
+
+[查看作品介绍](./项目目录/README.md) · [打开作品](./项目目录/index.html)
+
+![作品预览](./项目目录/preview/overview.png)
+-->
