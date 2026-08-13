@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TokenLens</title>
+  <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Inter:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    :root {
+      --bg: #f7f7f5; --surface: #fff; --hair: #e8e8e4; --ink: #171717;
+      --body: #444; --mute: #737373; --quiet: #a3a3a3; --save: #0f6e3f;
+      --burn: #b42318; --waste-a: #e4e0d8; --waste-b: #d5d0c6; --side: 200px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: Inter, "PingFang SC", "Noto Sans SC", -apple-system, sans-serif;
+      font-feature-settings: "ss01", "cv11", "tnum";
+      background: var(--bg); color: var(--ink); font-size: 13px; line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input { font-family: inherit; }
+    .app { display: grid; grid-template-columns: var(--side) 1fr; height: 100%; }
+    .side {
+      border-right: 1px solid var(--hair); padding: 16px 10px;
+      display: flex; flex-direction: column; background: var(--bg);
+    }
+    .wordmark {
+      display: flex; align-items: center; gap: 8px; padding: 4px 8px 22px;
+      font-size: 14px; font-weight: 600; letter-spacing: -0.03em;
+      color: inherit; text-decoration: none;
+    }
+    .nav a {
+      display: block; padding: 6px 8px; border-radius: 6px;
+      color: var(--mute); text-decoration: none;
+    }
+    .nav a.on { color: var(--ink); background: #ecece8; font-weight: 500; }
+    .nav a:hover { color: var(--ink); }
+    .side-meta {
+      margin-top: auto; padding: 10px 8px 4px; border-top: 1px solid var(--hair);
+      font-size: 11px; color: var(--quiet); line-height: 1.5;
+    }
+    .main { background: var(--surface); min-width: 0; height: 100%; overflow: hidden; position: relative; }
+    .view { display: none; height: 100%; overflow: auto; }
+    .view.on { display: block; }
+    #view-sessions.view.on { display: flex; flex-direction: column; overflow: hidden; }
+
+    .bar {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 48px; padding: 0 32px; border-bottom: 1px solid var(--hair); flex-shrink: 0;
+    }
+    .bar h1 { font-size: 14px; font-weight: 500; }
+    .bar h1 span { color: var(--quiet); font-weight: 400; }
+    .seg {
+      border: 1px solid var(--hair); background: #fff; color: var(--body);
+      font-size: 12px; padding: 4px 10px; border-radius: 6px;
+    }
+    .hero { padding: 28px 32px 8px; }
+    .hero-kicker { font-size: 12px; color: var(--mute); margin-bottom: 6px; }
+    .hero-num {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 44px; font-weight: 500; letter-spacing: -0.05em;
+      font-variant-numeric: tabular-nums; line-height: 1;
+    }
+    .hero-num small { font-size: 16px; color: var(--quiet); margin-left: 8px; letter-spacing: -0.02em; }
+    .hero-num.after { color: var(--save); }
+    .hero-row { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+    .arrow { color: var(--quiet); font-size: 22px; }
+    .hero-sub { margin-top: 8px; font-size: 12px; color: var(--mute); }
+    .hero-sub b { font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 500; color: var(--save); }
+    .split-meta { display: flex; justify-content: space-between; margin: 22px 0 8px; font-size: 12px; }
+    .split-meta .u { color: var(--ink); }
+    .split-meta .w { color: var(--mute); }
+    .split-meta b { font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 500; font-size: 13px; }
+
+    .live {
+      display: grid; grid-template-columns: 1fr auto auto; gap: 16px; align-items: center;
+      margin: 0 32px; padding: 12px 14px; border-bottom: 1px solid var(--hair);
+      text-decoration: none; color: inherit;
+    }
+    .live:hover { background: #fafaf8; }
+    .live-name { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .live-meta { font-size: 12px; color: var(--mute); margin-top: 2px; }
+    .pulse {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--ink);
+      animation: pulse 1.4s ease-in-out infinite; flex-shrink: 0;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+    .live-cost {
+      font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 18px; font-weight: 500;
+      letter-spacing: -0.03em; font-variant-numeric: tabular-nums; text-align: right;
+    }
+    .live-cost small { display: block; font-size: 11px; color: var(--mute); font-weight: 400; margin-top: 2px; }
+    .live.calm .pulse { animation: none; background: var(--save); }
+
+    .strip {
+      display: flex; height: 44px; border-radius: 4px; overflow: hidden; background: #f0eee9;
+    }
+    .strip .useful {
+      width: 42%; background: var(--ink); flex-shrink: 0;
+      transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .strip .waste {
+      flex: 1; min-width: 0; display: flex; align-items: center; justify-content: flex-end; padding: 0 10px;
+      color: inherit; text-decoration: none;
+      background: repeating-linear-gradient(-45deg, var(--waste-a), var(--waste-a) 5px, var(--waste-b) 5px, var(--waste-b) 10px);
+    }
+    .strip .waste:hover { filter: brightness(0.97); }
+    .strip-label { font-size: 11px; color: #5c574e; font-weight: 500; white-space: nowrap; }
+
+    .call {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      margin-top: 14px; padding: 12px 14px; border: 1px solid var(--hair);
+      border-radius: 8px; background: #fbfbf9;
+    }
+    .call p { color: var(--body); max-width: 520px; }
+    .amt { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; margin-right: 10px; color: var(--save); }
+    .row-right { display: flex; align-items: center; }
+    .btn {
+      height: 32px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--ink);
+      background: var(--ink); color: #fff; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap;
+    }
+    .btn:hover { background: #000; }
+    .btn:disabled { opacity: 0.55; cursor: default; }
+    .btn.done { background: #fff; color: var(--save); border-color: #c9ddd0; }
+    .btn.sm { height: 28px; padding: 0 10px; margin-top: 10px; }
+
+    .stats { display: flex; gap: 28px; padding: 18px 32px 6px; color: var(--mute); font-size: 12px; }
+    .stats b { color: var(--ink); font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 500; margin-left: 6px; }
+    .stats .good b { color: var(--save); }
+
+    #view-overview .list { padding: 8px 32px 32px; }
+    .list-h {
+      display: flex; justify-content: space-between; padding: 16px 0 10px;
+      font-size: 12px; color: var(--mute); border-bottom: 1px solid var(--hair);
+    }
+    .list-h strong { color: var(--ink); font-weight: 500; font-size: 13px; }
+    .list-h a { color: inherit; }
+    .sess {
+      display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(160px, 1fr) 72px;
+      gap: 20px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--hair);
+      color: inherit; text-decoration: none;
+    }
+    .sess:hover { background: #fafaf8; }
+    .name { font-weight: 500; }
+    .meta { color: var(--mute); font-size: 12px; margin-top: 2px; }
+    .mix { height: 8px; display: flex; border-radius: 2px; overflow: hidden; background: var(--waste-a); }
+    .mix .u { background: var(--ink); }
+    .mix .w {
+      flex: 1;
+      background: repeating-linear-gradient(-45deg, var(--waste-a), var(--waste-a) 3px, var(--waste-b) 3px, var(--waste-b) 6px);
+    }
+    .mix-cap {
+      display: flex; justify-content: space-between; font-size: 11px; color: var(--quiet);
+      margin-top: 4px; font-family: "IBM Plex Mono", ui-monospace, monospace;
+    }
+    .cost { text-align: right; font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 13px; }
+
+    .filters { display: flex; flex-direction: column; gap: 8px; padding: 14px 24px 12px; border-bottom: 1px solid var(--hair); flex-shrink: 0; }
+    .frow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .frow .k { font-size: 11px; color: var(--quiet); width: 40px; flex-shrink: 0; }
+    .chip {
+      border: 1px solid var(--hair); background: #fff; color: var(--body);
+      font-size: 12px; padding: 3px 9px; border-radius: 999px; cursor: pointer;
+    }
+    .chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .chip b { font-weight: 500; font-family: "IBM Plex Mono", ui-monospace, monospace; }
+    .split { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr); }
+    #view-sessions .list { overflow: auto; border-right: 1px solid var(--hair); padding: 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left; font-size: 11px; font-weight: 400; color: var(--quiet);
+      padding: 10px 10px; border-bottom: 1px solid var(--hair); position: sticky; top: 0; background: var(--surface);
+    }
+    th:first-child, td:first-child { padding-left: 24px; }
+    th:last-child, td:last-child { padding-right: 24px; }
+    th.r, td.r { text-align: right; }
+    tr { cursor: pointer; }
+    tr:hover td { background: #fafaf8; }
+    tr.on td { background: #f3f2ee; }
+    td { padding: 11px 10px; border-bottom: 1px solid var(--hair); vertical-align: middle; }
+    .when { font-size: 11px; color: var(--quiet); margin-top: 2px; }
+    .cell-2 { font-size: 13px; font-weight: 500; }
+    .cell-2 .id { display: block; font-size: 11px; font-weight: 400; color: var(--quiet); font-family: "IBM Plex Mono", ui-monospace, monospace; margin-top: 1px; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 12.5px; }
+    .low { color: var(--burn); }
+    .live-tag { display: inline-block; font-size: 10px; font-weight: 500; letter-spacing: 0.04em; margin-left: 6px; }
+    .detail { overflow: auto; padding: 20px 24px 32px; }
+    .d-kicker { font-size: 11px; color: var(--quiet); margin-bottom: 4px; }
+    .d-title { font-size: 16px; font-weight: 600; letter-spacing: -0.03em; }
+    .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--hair); border: 1px solid var(--hair); border-radius: 8px; overflow: hidden; margin: 16px 0 18px; }
+    .pair > div { background: #fbfbf9; padding: 12px 14px; }
+    .pair .lbl { font-size: 11px; color: var(--quiet); margin-bottom: 4px; }
+    .pair .v { font-size: 14px; font-weight: 600; letter-spacing: -0.02em; }
+    .pair .id { font-size: 11px; color: var(--mute); font-family: "IBM Plex Mono", ui-monospace, monospace; margin-top: 3px; }
+    .nums { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .nums .lbl { font-size: 11px; color: var(--quiet); }
+    .nums .v { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 15px; font-weight: 500; margin-top: 2px; }
+    .detail .mix { height: 10px; margin-top: 6px; }
+    .block { margin-top: 20px; }
+    .block h3 { font-size: 12px; font-weight: 500; margin-bottom: 8px; }
+    .token-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--hair); font-size: 12px; }
+    .token-row span:last-child { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+    .token-row.waste span:last-child { color: var(--burn); }
+    .why { margin-top: 8px; font-size: 12px; color: var(--body); padding: 10px 12px; background: #fbfbf9; border: 1px solid var(--hair); border-radius: 6px; }
+    .turns { list-style: none; }
+    .turns li { display: grid; grid-template-columns: 52px 1fr auto; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--hair); font-size: 12px; }
+    .turns .t { color: var(--quiet); font-family: "IBM Plex Mono", ui-monospace, monospace; }
+    .turns .c { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+    .empty { color: var(--mute); padding: 40px 24px; }
+
+    .cmp { display: grid; grid-template-columns: repeat(3, 1fr); margin: 20px 32px 8px; border: 1px solid var(--hair); border-radius: 8px; overflow: hidden; }
+    .cmp > div { padding: 12px 16px; border-right: 1px solid var(--hair); }
+    .cmp > div:last-child { border-right: 0; }
+    .cmp .lbl { font-size: 11px; color: var(--quiet); }
+    .cmp .v { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 18px; font-weight: 500; margin-top: 4px; }
+    .cmp .v.good { color: var(--save); }
+    #view-optimize .list { padding: 8px 32px 36px; }
+    .tool { display: grid; grid-template-columns: 1fr auto auto; gap: 20px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--hair); }
+    .tool h3 { font-size: 14px; font-weight: 600; }
+    .tool p { font-size: 12px; color: var(--mute); margin-top: 3px; max-width: 460px; }
+    .binds { font-size: 11px; color: var(--quiet); margin-top: 6px; }
+    .binds a { color: var(--mute); }
+    .tool .amt { font-size: 14px; margin-right: 0; }
+    .sw { width: 36px; height: 20px; border-radius: 99px; border: 0; background: #d9d6cf; position: relative; cursor: pointer; flex-shrink: 0; }
+    .sw i { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left 0.2s ease; }
+    .sw.on { background: var(--ink); }
+    .sw.on i { left: 18px; }
+
+    .pace { margin-top: 8px; font-size: 13px; color: var(--burn); }
+    .pace.ok { color: var(--save); }
+    .rail { position: relative; height: 12px; background: #f0eee9; border-radius: 4px; margin-top: 22px; overflow: hidden; }
+    .rail .spent { height: 100%; background: var(--ink); width: 78%; }
+    .rail .over { position: absolute; top: 0; bottom: 0; right: 0; background: repeating-linear-gradient(-45deg, #f3e4e1, #f3e4e1 4px, #ead5d1 4px, #ead5d1 8px); }
+    .marks { position: relative; height: 28px; margin-top: 6px; font-size: 11px; color: var(--quiet); font-family: "IBM Plex Mono", ui-monospace, monospace; }
+    .marks span { position: absolute; transform: translateX(-50%); }
+    .marks .cap { color: var(--burn); }
+    .grid { display: grid; grid-template-columns: 1.15fr 0.85fr; border-top: 1px solid var(--hair); margin-top: 12px; }
+    .col { min-width: 0; padding: 18px 32px 32px; }
+    .col + .col { border-left: 1px solid var(--hair); }
+    .col h2 { font-size: 13px; font-weight: 500; margin-bottom: 12px; }
+    .th { display: grid; grid-template-columns: 52px 1fr auto; gap: 10px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--hair); font-size: 12px; }
+    .th .pct { font-family: "IBM Plex Mono", ui-monospace, monospace; color: var(--quiet); }
+    .th .st { color: var(--mute); }
+    .th .st.warn { color: var(--burn); }
+    .th .st.ok { color: var(--save); }
+    .alert { padding: 12px 14px; border: 1px solid var(--hair); border-radius: 8px; background: #fbfbf9; font-size: 12px; margin-bottom: 14px; }
+    .alert a { color: var(--ink); }
+    .agent { display: grid; grid-template-columns: 92px 1fr 56px; gap: 10px; align-items: center; padding: 8px 0; font-size: 12px; }
+    .barline { height: 6px; background: #f0eee9; border-radius: 2px; }
+    .barline i { display: block; height: 100%; background: var(--ink); }
+    .agent .c { text-align: right; font-family: "IBM Plex Mono", ui-monospace, monospace; }
+    .set { display: flex; align-items: center; gap: 8px; margin-top: 16px; }
+    .set label { font-size: 12px; color: var(--mute); }
+    .set input { width: 88px; height: 32px; border: 1px solid var(--hair); border-radius: 6px; padding: 0 8px; font-size: 13px; font-family: "IBM Plex Mono", ui-monospace, monospace; }
+    .set span { font-size: 12px; color: var(--quiet); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .strip .useful, .sess .mix .u, .sw i { transition: none; }
+      .pulse { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <a class="wordmark" href="#overview">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+          <circle cx="8" cy="8" r="6.25" fill="none" stroke="#171717" stroke-width="1.4"></circle>
+          <circle cx="8" cy="8" r="2.2" fill="#171717"></circle>
+        </svg>
+        TokenLens
+      </a>
+      <nav class="nav">
+        <a class="on" href="#overview" data-nav="overview">总览</a>
+        <a href="#sessions" data-nav="sessions">会话</a>
+        <a href="#optimize" data-nav="optimize">优化</a>
+        <a href="#budget" data-nav="budget">预算</a>
+      </nav>
+      <p class="side-meta">本地 · 日志不出机器<br>四个页面，一个文件</p>
+    </aside>
+
+    <div class="main">
+      <section class="view on" id="view-overview">
+        <header class="bar">
+          <h1>总览 <span>/ payments-api</span></h1>
+          <span class="seg" id="ov-chip">本周</span>
+        </header>
+        <a class="live" id="ov-live" href="#sessions/ci">
+          <div>
+            <div class="live-name"><span class="pulse"></span>正在烧 · CI 失败重跑</div>
+            <div class="live-meta">Claude Code · Sonnet 4.5 · pytest 日志正在进模型</div>
+          </div>
+          <div class="mix" style="width:160px"><span class="u" id="ov-liveMix" style="width:28%"></span><span class="w"></span></div>
+          <div class="live-cost" id="ov-liveCost">$2.40<small>浪费 72%</small></div>
+        </a>
+        <div class="hero">
+          <div class="hero-kicker">本周已花 · 含进行中</div>
+          <div class="hero-num" id="ov-week">$87.20 <small>11 个完成 · 1 个正在烧</small></div>
+          <div class="split-meta">
+            <span class="u">有用 token <b id="ov-useful">$36.60</b></span>
+            <span class="w">噪音 / 重复 / 过长上下文 <b id="ov-waste">$50.60</b></span>
+          </div>
+          <div class="strip">
+            <div class="useful" id="ov-bar"></div>
+            <a class="waste" href="#sessions/ci"><span class="strip-label" id="ov-strip">点斜纹 · 看正在灌进来的命令输出</span></a>
+          </div>
+          <div class="call">
+            <p id="ov-call">正在烧的这条，和本周最贵的几条，都是 Claude Code 把测试日志原样送进了模型。</p>
+            <div class="row-right">
+              <span class="amt" id="ov-save">可追回 $38</span>
+              <button class="btn" id="ov-rtk" type="button">开启 rtk</button>
+            </div>
+          </div>
+        </div>
+        <div class="stats">
+          <span>今日<b id="ov-today">$12.40</b></span>
+          <span>有效收益<b id="ov-yield">42%</b></span>
+          <span id="ov-paceWrap">预算进度<b id="ov-pace">$312 / $400 · 将超支</b></span>
+        </div>
+        <div class="list">
+          <div class="list-h"><strong>会话里的钱，怎么被切开</strong><a href="#sessions">全部会话</a></div>
+          <a class="sess" href="#sessions/ci">
+            <div><div class="name">CI 失败重跑</div><div class="meta">Claude Code · Sonnet 4.5 · 进行中</div></div>
+            <div><div class="mix"><span class="u" data-mix="ci" style="width:28%"></span><span class="w"></span></div><div class="mix-cap"><span data-yield="ci">28%</span><span data-waste="ci">浪费 $1.73</span></div></div>
+            <div class="cost" data-cost="ci">$2.40</div>
+          </a>
+          <a class="sess" href="#sessions/auth">
+            <div><div class="name">auth middleware 重写</div><div class="meta">Claude Code · Sonnet 4.5 · 命令输出未过滤</div></div>
+            <div><div class="mix"><span class="u" data-mix="auth" style="width:31%"></span><span class="w"></span></div><div class="mix-cap"><span data-yield="auth">31%</span><span data-waste="auth">浪费 $12.70</span></div></div>
+            <div class="cost" data-cost="auth">$18.40</div>
+          </a>
+          <a class="sess" href="#sessions/flaky">
+            <div><div class="name">flaky test 排查</div><div class="meta">Claude Code · Opus 4.1 · 同一段日志读了 11 次</div></div>
+            <div><div class="mix"><span class="u" data-mix="flaky" style="width:28%"></span><span class="w"></span></div><div class="mix-cap"><span data-yield="flaky">28%</span><span data-waste="flaky">浪费 $10.70</span></div></div>
+            <div class="cost" data-cost="flaky">$14.90</div>
+          </a>
+          <a class="sess" href="#sessions/landing">
+            <div><div class="name">landing 文案变体</div><div class="meta">Cursor · GPT-5 · 18 分钟</div></div>
+            <div><div class="mix"><span class="u" data-mix="landing" style="width:71%"></span><span class="w"></span></div><div class="mix-cap"><span data-yield="landing">71%</span><span data-waste="landing">浪费 $1.80</span></div></div>
+            <div class="cost" data-cost="landing">$6.10</div>
+          </a>
+          <a class="sess" href="#sessions/types">
+            <div><div class="name">payments 类型补全</div><div class="meta">Codex · gpt-5-codex · 本可用更便宜的模型</div></div>
+            <div><div class="mix"><span class="u" data-mix="types" style="width:64%"></span><span class="w"></span></div><div class="mix-cap"><span data-yield="types">64%</span><span data-waste="types">浪费 $1.50</span></div></div>
+            <div class="cost" data-cost="types">$4.20</div>
+          </a>
+        </div>
+      </section>
+
+      <section class="view" id="view-sessions">
+        <header class="bar">
+          <h1>会话 <span>/ payments-api · 含 1 条进行中</span></h1>
+          <span class="seg">按花费</span>
+        </header>
+        <div class="filters">
+          <div class="frow" id="agentFilters"><span class="k">Agent</span></div>
+          <div class="frow" id="llmFilters"><span class="k">模型</span></div>
+        </div>
+        <div class="split">
+          <div class="list"><table>
+            <thead><tr><th>任务</th><th>Agent</th><th>模型</th><th class="r">收益</th><th class="r">花费</th></tr></thead>
+            <tbody id="tbody"></tbody>
+          </table></div>
+          <aside class="detail" id="detail"><p class="empty">点一条会话，看它用的 Agent 和模型。</p></aside>
+        </div>
+      </section>
+
+      <section class="view" id="view-optimize">
+        <header class="bar"><h1>优化 <span>/ 编排 rtk · headroom · 路由</span></h1></header>
+        <div class="hero">
+          <div class="hero-kicker">本周花费 · 开关即预估</div>
+          <div class="hero-row">
+            <div class="hero-num" id="op-before">$87.20</div>
+            <span class="arrow" id="op-arrow">→</span>
+            <div class="hero-num after" id="op-after">$87.20</div>
+          </div>
+          <div class="hero-sub" id="op-saved">还没开任何优化。先堵最大的洞。</div>
+          <div class="split-meta">
+            <span>有用 token <b id="op-useful">$36.60</b></span>
+            <span>浪费 <b id="op-waste">$50.60</b></span>
+          </div>
+          <div class="strip">
+            <div class="useful" id="op-bar" style="width:42%"></div>
+            <div class="waste"><span class="strip-label" id="op-strip">斜纹是还能追回的钱</span></div>
+          </div>
+        </div>
+        <div class="cmp">
+          <div><div class="lbl">有效收益</div><div class="v" id="op-yield">42%</div></div>
+          <div><div class="lbl">月末预测</div><div class="v" id="op-fc">$418</div></div>
+          <div><div class="lbl">相对现在</div><div class="v good" id="op-delta">$0</div></div>
+        </div>
+        <div class="list">
+          <div class="list-h"><strong>一个开关对应一个浪费模式</strong><span>先开影响最大的</span></div>
+          <article class="tool">
+            <div>
+              <h3>rtk</h3>
+              <p>拦截 Claude Code 的 shell 输出再送进模型。本周最大漏洞：测试日志原样进上下文。</p>
+              <div class="binds">作用于 Agent：Claude Code · <a href="#sessions/auth">auth middleware</a>、<a href="#sessions/flaky">flaky test</a></div>
+            </div>
+            <div class="amt">−$38 / 周</div>
+            <button class="sw" id="swRtk" type="button" aria-label="开启 rtk"><i></i></button>
+          </article>
+          <article class="tool">
+            <div>
+              <h3>headroom</h3>
+              <p>在 Agent 和模型之间压过长对话。40 轮以上的会话还在携带旧文件。</p>
+              <div class="binds">作用于 Agent：全部 · 先开 rtk，再压上下文</div>
+            </div>
+            <div class="amt">−$22 / 周</div>
+            <button class="sw" id="swHead" type="button" aria-label="开启 headroom"><i></i></button>
+          </article>
+          <article class="tool">
+            <div>
+              <h3>模型路由</h3>
+              <p>类型补全、重命名走便宜模型。Codex 默认模型做这类任务偏贵。</p>
+              <div class="binds">作用于 Agent：Codex / Cursor · <a href="#sessions/types">payments 类型补全</a></div>
+            </div>
+            <div class="amt">−$11 / 周</div>
+            <button class="sw" id="swRoute" type="button" aria-label="开启模型路由"><i></i></button>
+          </article>
+        </div>
+      </section>
+
+      <section class="view" id="view-budget">
+        <header class="bar"><h1>预算 <span>/ 2026 年 8 月 · payments-api</span></h1></header>
+        <div class="hero">
+          <div class="hero-kicker">本月已花 / 上限</div>
+          <div class="hero-num">$312.40 <small id="bd-capLabel">/ $400</small></div>
+          <p class="pace" id="bd-pace">按当前速率，月末将花 $418，超支 $18</p>
+          <div class="rail"><div class="spent" id="bd-spent"></div><div class="over" id="bd-over"></div></div>
+          <div class="marks">
+            <span style="left:50%">50%</span><span style="left:80%">80%</span>
+            <span class="cap" style="left:100%">上限</span>
+            <span id="bd-fcMark" style="left:104.5%;color:#171717">预测</span>
+          </div>
+        </div>
+        <div class="stats">
+          <span>今日<b>$12.40</b> / 日限额 $20</span>
+          <span>本周<b id="bd-week">$87.20</b></span>
+          <span>剩余 18 天</span>
+        </div>
+        <div class="grid">
+          <section class="col">
+            <h2>阈值</h2>
+            <div class="th"><div class="pct">50%</div><div>8 月 6 日已提醒。当时还在线内。</div><div class="st">已过</div></div>
+            <div class="th"><div class="pct">80%</div><div>昨天触发警告。建议先开 rtk，把最大的浪费堵上。</div><div class="st warn" id="bd-st80">当前</div></div>
+            <div class="th"><div class="pct">100%</div><div id="bd-st100txt">预计 8 月 18 日触达。到点后：简单任务改走 Haiku，非关键 Agent 暂停。</div><div class="st" id="bd-st100">未到</div></div>
+            <div class="set"><label for="bd-cap">月上限</label><input id="bd-cap" type="number" min="50" step="10" value="400"><span>只改这个演示数字</span></div>
+          </section>
+          <section class="col">
+            <div class="alert" id="bd-alert">
+              单会话异常：<b>auth middleware 重写</b> 花了 $18.40，是本周中位会话的 4 倍。
+              Agent Claude Code · 模型 Sonnet 4.5。
+              <a href="#sessions/auth">查看会话</a> · <a href="#optimize">去开 rtk</a>
+            </div>
+            <h2>本月按 Agent</h2>
+            <div class="agent"><div>Claude Code</div><div class="barline"><i style="width:100%"></i></div><div class="c">$186</div></div>
+            <div class="agent"><div>Cursor</div><div class="barline"><i style="width:58%"></i></div><div class="c">$89</div></div>
+            <div class="agent"><div>Codex</div><div class="barline"><i style="width:18%"></i></div><div class="c">$24</div></div>
+            <div class="agent"><div>Gemini CLI</div><div class="barline"><i style="width:10%"></i></div><div class="c">$13</div></div>
+          </section>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var KEY = "tokenlens-opts";
+      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      function money(n) { return "$" + Number(n).toFixed(2); }
+      function tok(n) { return n.toLocaleString("en-US"); }
+      function load() {
+        try { return Object.assign({ rtk: false, headroom: false, routing: false }, JSON.parse(localStorage.getItem(KEY) || "{}")); }
+        catch (e) { return { rtk: false, headroom: false, routing: false }; }
+      }
+      function save(s) { localStorage.setItem(KEY, JSON.stringify(s)); state = s; }
+
+      var state = load();
+      var live = { useful: 0.67, waste: 1.73 };
+      var histUseful = 36.60, histWaste = 50.60, histToday = 12.40;
+      var rowBase = {
+        auth: { useful: 5.70, waste: 12.70 },
+        flaky: { useful: 4.17, waste: 10.73 },
+        landing: { useful: 4.33, waste: 1.77 },
+        types: { useful: 2.69, waste: 1.51 }
+      };
+
+      var sessions = [
+        { id: "ci", live: true, name: "CI 失败重跑", when: "刚刚", agent: "Claude Code", llm: "Sonnet 4.5", llmId: "claude-sonnet-4-5", min: 6, turns: 3, yield: 28, cost: 2.40, useful: 0.67, waste: 1.73, tin: 18400, tout: 900, tool: 14200, why: "pytest 全量日志正在进模型。这就是总览上那条正在变长的斜纹。", turnsLog: [
+          { t: "刚刚", w: "拉 CI 失败日志", c: "$0.40" }, { t: "刚刚", w: "重跑失败用例，输出未过滤", c: "$1.20" }, { t: "现在", w: "日志还在灌", c: "—" }
+        ]},
+        { id: "auth", name: "auth middleware 重写", when: "周四 14:02", agent: "Claude Code", llm: "Sonnet 4.5", llmId: "claude-sonnet-4-5", min: 47, turns: 12, yield: 31, cost: 18.40, useful: 5.70, waste: 12.70, tin: 118400, tout: 8200, tool: 74200, why: "pytest 全量日志被原样送进模型。rtk 可压掉约 80% 的 shell token。", turnsLog: [
+          { t: "14:02", w: "读 auth.ts / middleware.ts", c: "$0.80" }, { t: "14:11", w: "跑测试，输出未过滤", c: "$4.60" }, { t: "14:19", w: "再跑失败用例，日志重复进入", c: "$5.10" }, { t: "14:31", w: "改 JWT 校验并再测", c: "$4.20" }, { t: "14:44", w: "收尾提交", c: "$3.70" }
+        ]},
+        { id: "flaky", name: "flaky test 排查", when: "周四 11:20", agent: "Claude Code", llm: "Opus 4.1", llmId: "claude-opus-4-1", min: 62, turns: 18, yield: 28, cost: 14.90, useful: 4.17, waste: 10.73, tin: 96400, tout: 6100, tool: 58100, why: "同一段 CI 日志被读了 11 次。Opus 在这种排查上偏贵。", turnsLog: [
+          { t: "11:20", w: "拉 CI 失败日志", c: "$2.10" }, { t: "11:28", w: "重复读取同一份 log", c: "$6.40" }, { t: "11:51", w: "定位竞态并打补丁", c: "$4.20" }, { t: "12:18", w: "确认绿了", c: "$2.20" }
+        ]},
+        { id: "webhook", name: "webhook 重试", when: "周三 16:40", agent: "Claude Code", llm: "Sonnet 4.5", llmId: "claude-sonnet-4-5", min: 33, turns: 8, yield: 48, cost: 9.60, useful: 4.61, waste: 4.99, tin: 61200, tout: 5400, tool: 22100, why: "上下文里带着三次失败的完整 payload。", turnsLog: [
+          { t: "16:40", w: "读 webhook handler", c: "$1.90" }, { t: "16:51", w: "实现指数退避", c: "$4.80" }, { t: "17:08", w: "补测试", c: "$2.90" }
+        ]},
+        { id: "checkout", name: "checkout 表单重构", when: "周三 10:05", agent: "Cursor", llm: "Sonnet 4.5", llmId: "claude-sonnet-4-5", min: 41, turns: 9, yield: 55, cost: 8.20, useful: 4.51, waste: 3.69, tin: 44800, tout: 7200, tool: 0, why: "Composer 把整个 app router 塞进了上下文。", turnsLog: [
+          { t: "10:05", w: "打开 checkout 相关文件", c: "$1.40" }, { t: "10:18", w: "拆分表单状态", c: "$4.10" }, { t: "10:39", w: "对齐校验文案", c: "$2.70" }
+        ]},
+        { id: "landing", name: "landing 文案变体", when: "周三 09:12", agent: "Cursor", llm: "GPT-5", llmId: "gpt-5", min: 18, turns: 6, yield: 71, cost: 6.10, useful: 4.33, waste: 1.77, tin: 18200, tout: 9100, tool: 0, why: "浪费很少。这类写作任务 GPT-5 性价比正常。", turnsLog: [
+          { t: "09:12", w: "读现有落地页", c: "$0.90" }, { t: "09:18", w: "出 4 组标题", c: "$3.40" }, { t: "09:26", w: "收口一版", c: "$1.80" }
+        ]},
+        { id: "cors", name: "CORS 调试", when: "周二 19:44", agent: "Cursor", llm: "GPT-5", llmId: "gpt-5", min: 22, turns: 7, yield: 52, cost: 5.40, useful: 2.81, waste: 2.59, tin: 22100, tout: 3800, tool: 0, why: "把 nginx 配置反复贴了三遍。", turnsLog: [
+          { t: "19:44", w: "复现预检失败", c: "$1.20" }, { t: "19:52", w: "改 CORS header", c: "$2.80" }, { t: "20:03", w: "验证", c: "$1.40" }
+        ]},
+        { id: "types", name: "payments 类型补全", when: "周二 15:30", agent: "Codex", llm: "gpt-5-codex", llmId: "gpt-5-codex", min: 24, turns: 5, yield: 64, cost: 4.20, useful: 2.69, waste: 1.51, tin: 28600, tout: 4100, tool: 0, why: "重命名和补类型不必走 Codex 默认模型。", turnsLog: [
+          { t: "15:30", w: "扫 payments 目录", c: "$1.10" }, { t: "15:38", w: "补 DTO 类型", c: "$2.20" }, { t: "15:51", w: "修两处 any", c: "$0.90" }
+        ]},
+        { id: "redis", name: "Redis 缓存摸底", when: "周二 11:08", agent: "Gemini CLI", llm: "Gemini 2.5 Pro", llmId: "gemini-2.5-pro", min: 27, turns: 8, yield: 58, cost: 3.90, useful: 2.26, waste: 1.64, tin: 33400, tout: 5200, tool: 8900, why: "redis-cli 输出略长，但整体不贵。", turnsLog: [
+          { t: "11:08", w: "看现有 cache 层", c: "$0.80" }, { t: "11:16", w: "测 hit/miss", c: "$1.90" }, { t: "11:31", w: "写结论", c: "$1.20" }
+        ]},
+        { id: "pr412", name: "Review PR #412", when: "周一 17:22", agent: "Cursor", llm: "Sonnet 4.5", llmId: "claude-sonnet-4-5", min: 14, turns: 4, yield: 76, cost: 3.50, useful: 2.66, waste: 0.84, tin: 19800, tout: 2600, tool: 0, why: "几乎没有浪费。", turnsLog: [
+          { t: "17:22", w: "读 diff", c: "$1.50" }, { t: "17:29", w: "写 review 意见", c: "$2.00" }
+        ]},
+        { id: "migrate", name: "写迁移脚本", when: "周一 13:40", agent: "Claude Code", llm: "Haiku 4.5", llmId: "claude-haiku-4-5", min: 19, turns: 6, yield: 81, cost: 2.10, useful: 1.70, waste: 0.40, tin: 14200, tout: 3100, tool: 2400, why: "Haiku 跑样板 SQL 很合适。", turnsLog: [
+          { t: "13:40", w: "看 schema", c: "$0.40" }, { t: "13:48", w: "生成 migration", c: "$1.20" }, { t: "13:56", w: "跑 dry-run", c: "$0.50" }
+        ]},
+        { id: "readme", name: "README 润色", when: "周一 09:50", agent: "Cursor", llm: "GPT-4.1 mini", llmId: "gpt-4.1-mini", min: 11, turns: 3, yield: 88, cost: 0.80, useful: 0.70, waste: 0.10, tin: 6200, tout: 1800, tool: 0, why: "便宜模型做文档，几乎没有浪费。", turnsLog: [
+          { t: "09:50", w: "读 README", c: "$0.20" }, { t: "09:55", w: "重写 Quickstart", c: "$0.60" }
+        ]}
+      ];
+      var liveSess = sessions[0];
+      var agentFilter = "all", llmFilter = "all", selected = "ci";
+
+      function viewSess(s) {
+        var o = Object.assign({}, s);
+        if (s.live) { o.useful = live.useful; o.waste = live.waste; o.cost = live.useful + live.waste; }
+        if (state.rtk && s.agent === "Claude Code" && s.tool > 5000) {
+          o.waste = +(o.waste * (s.live ? 0.22 : 0.2)).toFixed(2);
+          o.cost = +(o.useful + Number(o.waste)).toFixed(2);
+          o.tool = Math.round(s.tool * 0.2);
+          o.why = s.live ? "rtk 已截住。pytest 输出不再原样进模型。" : "rtk 已开启。shell 输出按预估压缩了约 80%。Cursor / Codex 不受影响。";
+        }
+        if (state.routing && s.id === "types") {
+          o.waste = +(s.waste * 0.3).toFixed(2);
+          o.cost = +(s.useful + Number(o.waste)).toFixed(2);
+          o.why = "模型路由已开。类型补全改走便宜模型。";
+        }
+        o.yield = Math.round((o.useful / o.cost) * 100);
+        return o;
+      }
+
+      function computeWeek(s) {
+        var waste = 50.60;
+        if (s.rtk) waste -= 38.10;
+        if (s.headroom) waste -= 22;
+        if (s.routing) waste -= 11;
+        if (waste < 0.4) waste = 0.4;
+        var useful = 36.60, week = useful + waste, saved = 87.20 - week;
+        return { week: week, waste: waste, useful: useful, yieldPct: Math.round((useful / week) * 100), saved: saved, forecast: 418 - saved * 2.3 };
+      }
+
+      function rowView(id) {
+        var r = rowBase[id];
+        var waste = r.waste;
+        if (state.rtk && (id === "auth" || id === "flaky")) waste = r.waste * 0.2;
+        if (state.routing && id === "types") waste = r.waste * 0.3;
+        var cost = r.useful + waste;
+        return { waste: waste, cost: cost, yield: Math.round((r.useful / cost) * 100) };
+      }
+
+      function paintOverview() {
+        var liveWaste = state.rtk ? live.waste * 0.22 : live.waste;
+        var liveCost = live.useful + liveWaste;
+        var liveYield = Math.round((live.useful / liveCost) * 100);
+        var useful = histUseful + live.useful;
+        var waste = (state.rtk ? 12.50 : histWaste) + liveWaste;
+        var week = useful + waste;
+        document.getElementById("ov-week").innerHTML = money(week) + " <small>11 个完成 · 1 个正在烧</small>";
+        document.getElementById("ov-useful").textContent = money(useful);
+        document.getElementById("ov-waste").textContent = money(waste);
+        document.getElementById("ov-bar").style.width = Math.round((useful / week) * 100) + "%";
+        document.getElementById("ov-today").textContent = money(histToday + liveCost);
+        document.getElementById("ov-yield").textContent = Math.round((useful / week) * 100) + "%";
+        document.getElementById("ov-liveCost").innerHTML = money(liveCost) + "<small>浪费 " + (100 - liveYield) + "%</small>";
+        document.getElementById("ov-liveMix").style.width = liveYield + "%";
+        document.querySelector('[data-mix="ci"]').style.width = liveYield + "%";
+        document.querySelector('[data-yield="ci"]').textContent = liveYield + "%";
+        document.querySelector('[data-waste="ci"]').textContent = "浪费 " + money(liveWaste);
+        document.querySelector('[data-cost="ci"]').textContent = money(liveCost);
+        ["auth", "flaky", "landing", "types"].forEach(function (id) {
+          var v = rowView(id);
+          document.querySelector('[data-mix="' + id + '"]').style.width = v.yield + "%";
+          document.querySelector('[data-yield="' + id + '"]').textContent = v.yield + "%";
+          document.querySelector('[data-waste="' + id + '"]').textContent = "浪费 " + money(v.waste);
+          document.querySelector('[data-cost="' + id + '"]').textContent = money(v.cost);
+        });
+        var rtkBtn = document.getElementById("ov-rtk");
+        if (state.rtk) {
+          document.getElementById("ov-live").classList.add("calm");
+          document.getElementById("ov-chip").textContent = "rtk 已截住";
+          document.getElementById("ov-strip").textContent = "斜纹已变短 · 点进去看这条会话";
+          document.getElementById("ov-call").textContent = "rtk 已写入 Claude Code。进行中的 pytest 输出不再原样进模型。Cursor 的会话不变。";
+          document.getElementById("ov-save").textContent = "已锁住 $38";
+          document.getElementById("ov-pace").textContent = "$274 / $400 · 不会超";
+          document.getElementById("ov-paceWrap").className = "good";
+          rtkBtn.textContent = "已开启"; rtkBtn.className = "btn done";
+        } else {
+          document.getElementById("ov-live").classList.remove("calm");
+          document.getElementById("ov-chip").textContent = "正在烧";
+          document.getElementById("ov-strip").textContent = "点斜纹 · 看正在灌进来的命令输出";
+          document.getElementById("ov-call").textContent = "正在烧的这条，和本周最贵的几条，都是 Claude Code 把测试日志原样送进了模型。";
+          document.getElementById("ov-save").textContent = "可追回 $38";
+          document.getElementById("ov-pace").textContent = "$312 / $400 · 将超支";
+          document.getElementById("ov-paceWrap").className = "";
+          rtkBtn.textContent = "开启 rtk"; rtkBtn.className = "btn";
+        }
+      }
+
+      function paintOptimize() {
+        var c = computeWeek(state);
+        var pct = Math.round((c.useful / c.week) * 100);
+        document.getElementById("op-after").textContent = money(c.week);
+        document.getElementById("op-useful").textContent = money(c.useful);
+        document.getElementById("op-waste").textContent = money(c.waste);
+        document.getElementById("op-bar").style.width = pct + "%";
+        document.getElementById("op-yield").textContent = c.yieldPct + "%";
+        document.getElementById("op-fc").textContent = "$" + Math.round(c.forecast);
+        document.getElementById("op-delta").textContent = c.saved > 0.5 ? "−" + money(c.saved) + " / 周" : "$0";
+        document.getElementById("op-arrow").style.opacity = c.saved > 0.5 ? "1" : "0.25";
+        document.getElementById("op-after").style.opacity = c.saved > 0.5 ? "1" : "0.35";
+        if (!state.rtk && !state.headroom && !state.routing) {
+          document.getElementById("op-saved").textContent = "还没开任何优化。先堵最大的洞。";
+          document.getElementById("op-strip").textContent = "斜纹是还能追回的钱";
+        } else if (state.rtk && !state.headroom) {
+          document.getElementById("op-saved").innerHTML = "rtk 已写入 Claude Code。本周预计 <b>" + money(c.week) + "</b>。";
+          document.getElementById("op-strip").textContent = "剩下的浪费主要是未压缩的上下文";
+        } else {
+          document.getElementById("op-saved").innerHTML = "已编排的优化会在之后的会话生效。本周预计 <b>" + money(c.week) + "</b>。";
+          document.getElementById("op-strip").textContent = c.waste < 5 ? "浪费已经很小" : "斜纹是还没堵住的浪费";
+        }
+        document.getElementById("swRtk").className = "sw" + (state.rtk ? " on" : "");
+        document.getElementById("swHead").className = "sw" + (state.headroom ? " on" : "");
+        document.getElementById("swRoute").className = "sw" + (state.routing ? " on" : "");
+      }
+
+      function paintBudget() {
+        var cap = Number(document.getElementById("bd-cap").value) || 400;
+        var c = computeWeek(state);
+        var fc = c.forecast;
+        var spent = 312.40;
+        var spentPct = Math.min(100, (spent / cap) * 100);
+        var fcPct = (fc / cap) * 100;
+        document.getElementById("bd-capLabel").textContent = "/ $" + cap;
+        document.getElementById("bd-spent").style.width = spentPct + "%";
+        document.getElementById("bd-over").style.width = Math.min(Math.max(0, fcPct - 100), 20) + "%";
+        document.getElementById("bd-fcMark").style.left = Math.min(fcPct, 118) + "%";
+        document.getElementById("bd-week").textContent = money(c.week);
+        var pace = document.getElementById("bd-pace");
+        if (fc <= cap) {
+          pace.className = "pace ok";
+          pace.textContent = "按当前速率，月末将花 $" + Math.round(fc) + "，不会超支";
+          document.getElementById("bd-st80").textContent = spentPct >= 80 ? "当前" : "未到";
+          document.getElementById("bd-st80").className = "st ok";
+          document.getElementById("bd-st100").textContent = "未到";
+          document.getElementById("bd-st100txt").textContent = "上限内。降级规则待命，不会触发。";
+        } else {
+          pace.className = "pace";
+          pace.textContent = "按当前速率，月末将花 $" + Math.round(fc) + "，超支 $" + Math.round(fc - cap);
+          document.getElementById("bd-st80").textContent = "当前";
+          document.getElementById("bd-st80").className = "st warn";
+          document.getElementById("bd-st100").textContent = "预计 8/18";
+          document.getElementById("bd-st100txt").textContent = "预计 8 月 18 日触达。到点后：简单任务改走 Haiku，非关键 Agent 暂停。";
+        }
+        document.getElementById("bd-alert").innerHTML = state.rtk
+          ? 'rtk 已开启，后续 Claude Code 会话会便宜一截。仍建议看 <a href="#sessions/flaky">flaky test</a> 是否还在用 Opus 排日志。'
+          : '单会话异常：<b>auth middleware 重写</b> 花了 $18.40。Agent Claude Code · 模型 Sonnet 4.5。<a href="#sessions/auth">查看会话</a> · <a href="#optimize">去开 rtk</a>';
+      }
+
+      function unique(key) {
+        var map = {};
+        sessions.forEach(function (s) { map[s[key]] = (map[s[key]] || 0) + 1; });
+        return Object.keys(map).map(function (k) { return { name: k, n: map[k] }; });
+      }
+      function visible() {
+        return sessions.filter(function (s) {
+          if (agentFilter !== "all" && s.agent !== agentFilter) return false;
+          if (llmFilter !== "all" && s.llm !== llmFilter) return false;
+          return true;
+        });
+      }
+      function chips(el, items, current, onPick) {
+        var label = el.querySelector(".k").textContent;
+        el.innerHTML = '<span class="k">' + label + "</span>";
+        var all = document.createElement("button");
+        all.className = "chip" + (current === "all" ? " on" : "");
+        all.type = "button"; all.textContent = "全部";
+        all.onclick = function () { onPick("all"); };
+        el.appendChild(all);
+        items.forEach(function (it) {
+          var b = document.createElement("button");
+          b.className = "chip" + (current === it.name ? " on" : "");
+          b.type = "button";
+          b.innerHTML = it.name + " <b>" + it.n + "</b>";
+          b.onclick = function () { onPick(it.name); };
+          el.appendChild(b);
+        });
+      }
+      function renderList() {
+        var html = "";
+        visible().forEach(function (raw) {
+          var s = viewSess(raw);
+          html += '<tr data-id="' + raw.id + '"' + (selected === raw.id ? ' class="on"' : "") + ">" +
+            '<td><div class="name">' + s.name + (raw.live ? '<span class="live-tag">进行中</span>' : "") + '</div><div class="when">' + s.when + " · " + s.min + " 分钟</div></td>" +
+            '<td><div class="cell-2">' + s.agent + "</div></td>" +
+            '<td><div class="cell-2">' + s.llm + '<span class="id">' + s.llmId + "</span></div></td>" +
+            '<td class="r mono' + (s.yield < 40 ? " low" : "") + '">' + s.yield + "%</td>" +
+            '<td class="r mono">' + money(s.cost) + "</td></tr>";
+        });
+        document.getElementById("tbody").innerHTML = html;
+      }
+      function renderDetail(raw) {
+        if (!raw) { document.getElementById("detail").innerHTML = '<p class="empty">点一条会话，看它用的 Agent 和模型。</p>'; return; }
+        var s = viewSess(raw);
+        var turns = s.turnsLog.map(function (x) {
+          return "<li><span class=\"t\">" + x.t + "</span><span>" + x.w + "</span><span class=\"c\">" + x.c + "</span></li>";
+        }).join("");
+        var action = "";
+        if (raw.agent === "Claude Code" && raw.tool > 5000) {
+          action = state.rtk
+            ? '<button class="btn sm done" type="button" disabled>rtk 已开启</button>'
+            : '<button class="btn sm" id="se-rtk" type="button">开启 rtk</button>';
+        }
+        document.getElementById("detail").innerHTML =
+          '<div class="d-kicker">' + (raw.live ? "正在烧 · " : "") + s.when + " · " + s.turns + " 轮 · " + s.min + " 分钟</div>" +
+          '<div class="d-title">' + s.name + "</div>" +
+          '<div class="pair"><div><div class="lbl">Agent</div><div class="v">' + s.agent + '</div><div class="id">编程助手 / 运行时</div></div>' +
+          '<div><div class="lbl">模型</div><div class="v">' + s.llm + '</div><div class="id">' + s.llmId + "</div></div></div>" +
+          '<div class="nums"><div><div class="lbl">花费</div><div class="v" id="dCost">' + money(s.cost) + "</div></div>" +
+          '<div><div class="lbl">有效收益</div><div class="v" id="dYield">' + s.yield + "%</div></div>" +
+          '<div><div class="lbl">浪费</div><div class="v" id="dWaste">' + money(s.waste) + "</div></div></div>" +
+          '<div class="mix"><span class="u" id="dMix" style="width:' + s.yield + '%"></span><span class="w"></span></div>' +
+          '<div class="mix-cap"><span>有用 ' + money(s.useful) + "</span><span>浪费 " + money(s.waste) + "</span></div>" +
+          '<div class="block"><h3>Token 构成</h3>' +
+          '<div class="token-row"><span>输入</span><span>' + tok(s.tin) + "</span></div>" +
+          '<div class="token-row"><span>输出</span><span>' + tok(s.tout) + "</span></div>" +
+          '<div class="token-row' + (s.tool > 20000 || raw.live ? " waste" : "") + '"><span>工具 / 命令输出</span><span>' + tok(s.tool) + "</span></div>" +
+          '<p class="why">' + s.why + "</p>" + action + "</div>" +
+          '<div class="block"><h3>时间线</h3><ul class="turns">' + turns + "</ul></div>";
+        var b = document.getElementById("se-rtk");
+        if (b) b.onclick = function () { enableRtk(); };
+      }
+      function selectSess(id, push) {
+        var s = sessions.filter(function (x) { return x.id === id; })[0] || visible()[0];
+        selected = s ? s.id : null;
+        if (push && selected) location.hash = "sessions/" + selected;
+        renderList();
+        renderDetail(s);
+      }
+      function refreshChips() {
+        chips(document.getElementById("agentFilters"), unique("agent"), agentFilter, function (v) {
+          agentFilter = v; refreshChips(); var rows = visible(); selectSess(rows[0] ? rows[0].id : null, true);
+        });
+        chips(document.getElementById("llmFilters"), unique("llm"), llmFilter, function (v) {
+          llmFilter = v; refreshChips(); var rows = visible(); selectSess(rows[0] ? rows[0].id : null, true);
+        });
+      }
+      function patchLiveRow() {
+        var tr = document.querySelector('#tbody tr[data-id="ci"]');
+        if (!tr) return;
+        var s = viewSess(liveSess);
+        var monos = tr.querySelectorAll(".mono");
+        if (monos[0]) { monos[0].textContent = s.yield + "%"; monos[0].className = "r mono" + (s.yield < 40 ? " low" : ""); }
+        if (monos[1]) monos[1].textContent = money(s.cost);
+        if (selected === "ci") {
+          var dCost = document.getElementById("dCost");
+          if (dCost) {
+            dCost.textContent = money(s.cost);
+            document.getElementById("dYield").textContent = s.yield + "%";
+            document.getElementById("dWaste").textContent = money(s.waste);
+            document.getElementById("dMix").style.width = s.yield + "%";
+          }
+        }
+      }
+
+      function paintAll() {
+        paintOverview();
+        paintOptimize();
+        paintBudget();
+        if (document.getElementById("view-sessions").classList.contains("on")) {
+          renderList();
+          renderDetail(sessions.filter(function (x) { return x.id === selected; })[0]);
+        }
+      }
+      function enableRtk() {
+        state.rtk = true;
+        save(state);
+        paintAll();
+      }
+
+      function route() {
+        var h = (location.hash || "#overview").replace(/^#/, "");
+        var parts = h.split("/");
+        var view = parts[0] || "overview";
+        var id = parts[1] || null;
+        if (["overview", "sessions", "optimize", "budget"].indexOf(view) < 0) view = "overview";
+        document.querySelectorAll(".view").forEach(function (el) { el.classList.toggle("on", el.id === "view-" + view); });
+        document.querySelectorAll(".nav a").forEach(function (a) { a.classList.toggle("on", a.getAttribute("data-nav") === view); });
+        if (view === "sessions") {
+          if (!document.getElementById("agentFilters").querySelector(".chip")) refreshChips();
+          selectSess(id || selected || "ci", false);
+        }
+        if (view === "overview") paintOverview();
+        if (view === "optimize") paintOptimize();
+        if (view === "budget") paintBudget();
+      }
+
+      document.getElementById("ov-rtk").onclick = function () {
+        if (state.rtk) return;
+        this.textContent = "配置中"; this.disabled = true;
+        var self = this;
+        window.setTimeout(function () { self.disabled = false; enableRtk(); }, 420);
+      };
+      document.getElementById("swRtk").onclick = function () { state.rtk = !state.rtk; save(state); paintAll(); };
+      document.getElementById("swHead").onclick = function () { state.headroom = !state.headroom; save(state); paintAll(); };
+      document.getElementById("swRoute").onclick = function () { state.routing = !state.routing; save(state); paintAll(); };
+      document.getElementById("bd-cap").addEventListener("input", paintBudget);
+      document.getElementById("tbody").addEventListener("click", function (e) {
+        var tr = e.target.closest("tr");
+        if (!tr) return;
+        selectSess(tr.getAttribute("data-id"), true);
+      });
+      window.addEventListener("hashchange", route);
+
+      if (!location.hash) location.hash = "overview";
+      refreshChips();
+      route();
+      paintAll();
+
+      if (!reduce) {
+        window.setInterval(function () {
+          if (live.useful + live.waste > 12) return;
+          if (state.rtk) { live.useful += 0.012; live.waste += 0.006; liveSess.tin += 80; }
+          else { live.useful += 0.018; live.waste += 0.055 + Math.random() * 0.03; liveSess.tin += 420; liveSess.tool += 380; }
+          liveSess.useful = live.useful; liveSess.waste = live.waste;
+          liveSess.cost = live.useful + live.waste;
+          paintOverview();
+          patchLiveRow();
+        }, 900);
+      }
+    }());
+  </script>
+</body>
+</html>

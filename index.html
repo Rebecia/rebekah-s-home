@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xiaoyan Zhou — Rebecia</title>
+  <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Source+Serif+4:wght@500;600&family=Inter:wght@400;500;600&display=swap">
+  <style>
+    :root {
+      --paper: #f3f4f6;
+      --ink: #141414;
+      --body: #3f3f46;
+      --mute: #71717a;
+      --rule: #d4d4d8;
+      --white: #fafafa;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: Inter, "PingFang SC", "Noto Sans SC", sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 28px 28px 80px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .mark {
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mute);
+    }
+    nav { display: flex; gap: 18px; font-size: 13px; }
+    nav a { text-decoration: none; color: var(--body); }
+    nav a:hover { color: var(--ink); }
+
+    .hero { padding: 56px 0 48px; }
+    .hero h1 {
+      font-family: "Source Serif 4", "Songti SC", serif;
+      font-size: 52px;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+    .hero h1 em {
+      font-style: italic;
+      font-weight: 500;
+      color: var(--mute);
+      font-size: 0.42em;
+      letter-spacing: 0;
+      margin-left: 10px;
+      vertical-align: 8px;
+    }
+    .lede {
+      margin-top: 18px;
+      max-width: 34em;
+      font-size: 17px;
+      color: var(--body);
+    }
+
+    h2 {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mute);
+      margin: 0 0 16px;
+    }
+    section { padding: 36px 0; border-top: 1px solid var(--rule); }
+
+    .feature {
+      background: var(--white);
+      border: 1px solid var(--rule);
+      padding: 22px 22px 18px;
+      text-decoration: none;
+      display: block;
+    }
+    .feature:hover { border-color: #a1a1aa; }
+    .kicker { font-size: 12px; color: var(--mute); margin-bottom: 6px; }
+    .feature h3 {
+      font-family: "Source Serif 4", "Songti SC", serif;
+      font-size: 26px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+    }
+    .feature p { margin-top: 8px; color: var(--body); font-size: 14px; }
+    .strip {
+      display: flex;
+      height: 36px;
+      margin: 18px 0 14px;
+      overflow: hidden;
+    }
+    .strip .u { width: 42%; background: var(--ink); }
+    .strip .w {
+      flex: 1;
+      background: repeating-linear-gradient(-45deg, #e4e4e7, #e4e4e7 4px, #d4d4d8 4px, #d4d4d8 8px);
+      display: flex; align-items: center; justify-content: flex-end;
+      padding: 0 10px; font-size: 11px; color: #52525b;
+    }
+    .go { font-size: 13px; font-weight: 500; }
+
+    .list { list-style: none; }
+    .list li { border-top: 1px solid var(--rule); }
+    .list li:first-child { border-top: 0; }
+    .list a {
+      display: grid;
+      grid-template-columns: 140px 1fr auto;
+      gap: 16px;
+      padding: 14px 0;
+      text-decoration: none;
+      align-items: baseline;
+    }
+    .list a:hover .t { text-decoration: underline; }
+    .list .t { font-weight: 500; }
+    .list .d { color: var(--body); font-size: 14px; }
+    .list .y { font-size: 12px; color: var(--mute); }
+
+    .about { color: var(--body); max-width: 36em; }
+    .about p + p { margin-top: 12px; }
+    footer {
+      padding-top: 28px;
+      font-size: 12px;
+      color: var(--mute);
+    }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 36px; }
+      .list a { grid-template-columns: 1fr; gap: 4px; }
+      .wrap { padding: 20px 20px 64px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="mark">Rebecia</div>
+      <nav>
+        <a href="#work">作品</a>
+        <a href="#about">关于</a>
+        <a href="https://github.com/Rebecia">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="hero">
+      <h1>Xiaoyan Zhou<em>周晓燕</em></h1>
+      <p class="lede">北京交通大学网络空间安全。做安全和 LLM，也把判断做成能打开的产品。最近在想：工具已经很多了，缺的是让人看清、并立刻能动手的那一层。</p>
+    </div>
+
+    <section id="work">
+      <h2>精选</h2>
+      <a class="feature" href="./tokenlens/index.html">
+        <div class="kicker">产品 · 2026</div>
+        <h3>TokenLens</h3>
+        <p>面向个人开发者的 AI 花费管家。把「看见花了多少」和「一键省下来」接成一条线：正在烧的会话、有用 / 浪费切开、编排 rtk 而不是再造一个压缩引擎。</p>
+        <div class="strip" aria-hidden="true">
+          <div class="u"></div>
+          <div class="w">斜纹是浪费 · 点进去</div>
+        </div>
+        <div class="go">打开可交互原型 →</div>
+      </a>
+    </section>
+
+    <section>
+      <h2>还在做的</h2>
+      <ul class="list">
+        <li>
+          <a href="https://github.com/Rebecia/OSS-FGI">
+            <span class="t">OSS-FGI</span>
+            <span class="d">开源软件供应链相关工作，目前 GitHub 上星标最多的仓库。</span>
+            <span class="y">16★</span>
+          </a>
+        </li>
+        <li>
+          <a href="https://github.com/Rebecia/DataSSA">
+            <span class="t">DataSSA</span>
+            <span class="d">数据库安全 Agent。面向库内风险与安全分析的智能体。</span>
+            <span class="y">Agent</span>
+          </a>
+        </li>
+        <li>
+          <a href="https://github.com/Rebecia/FirmLLM">
+            <span class="t">FirmLLM</span>
+            <span class="d">用大模型做固件的自主推理与分析。</span>
+            <span class="y">LLM</span>
+          </a>
+        </li>
+        <li>
+          <a href="https://github.com/Rebecia/Pkg_Docker_Genr">
+            <span class="t">Pkg_Docker_Genr</span>
+            <span class="d">恶意软件分析环境的生成 Agent。</span>
+            <span class="y">Agent</span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <section id="about">
+      <h2>关于</h2>
+      <div class="about">
+        <p>我是周晓燕，在北京交通大学读网络空间安全，关注大模型。实验室里的工作偏安全与 Agent；TokenLens 是我把同一套判断用在产品上的一次练习——从市场空白、砍范围，到做出可以点的第一屏。</p>
+        <p>如果你在看作品集：请先打开 TokenLens。报告和仓库是附录。</p>
+      </div>
+    </section>
+
+    <footer>
+      <a href="https://github.com/Rebecia">github.com/Rebecia</a>
+    </footer>
+  </div>
+</body>
+</html>
