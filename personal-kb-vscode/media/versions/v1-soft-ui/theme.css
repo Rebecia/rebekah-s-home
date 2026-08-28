@@ -1,0 +1,90 @@
+/* Brief pins the direction: soft-UI health dashboard (user reference image).
+   Follow it exactly — chunky rounded tiles, tinted fills, circular badges,
+   heavy geometric sans, big numbers with small units. */
+
+:root {
+  --page: #eceeed;
+  --tile: #ffffff;
+  --cream: #f4f3ee;
+  --sky: #cfe9f6;
+  --sky-strong: #a5daf0;
+  --ink: #14161a;
+  --mute: #868d97;
+  --hair: rgba(20, 22, 26, .07);
+  --dark: #16181c;
+  --shadow: 0 1px 2px rgba(20,22,26,.04), 0 8px 24px rgba(20,22,26,.05);
+
+  --c-thinking: #f9813c;
+  --c-fundamentals: #c3de4e;
+  --c-idea: #f5b63c;
+  --c-pitfall: #f26b6b;
+  --c-life: #7ed8c3;
+  --c-glossary: #7fcdea;
+
+  --r-lg: 26px;
+  --r-md: 20px;
+  --r-sm: 14px;
+
+  --font: "Poppins", "Avenir Next", "PingFang SC", "Hiragino Sans GB", sans-serif;
+}
+
+body.vscode-dark {
+  --page: #14171b;
+  --tile: #1d2126;
+  --cream: #22252a;
+  --sky: #1e343f;
+  --sky-strong: #2b5064;
+  --ink: #eef1f4;
+  --mute: #8e96a1;
+  --hair: rgba(255,255,255,.07);
+  --dark: #eef1f4;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+* { box-sizing: border-box; }
+button, input { font-family: inherit; color: inherit; }
+button { cursor: pointer; }
+
+/* circular badge holding the type's first character */
+.badge {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #14161a;
+  flex: none;
+}
+.badge.thinking { background: var(--c-thinking); color: #fff; }
+.badge.fundamentals { background: var(--c-fundamentals); }
+.badge.idea { background: var(--c-idea); }
+.badge.pitfall { background: var(--c-pitfall); color: #fff; }
+.badge.life { background: var(--c-life); }
+.badge.glossary { background: var(--c-glossary); }
+
+.pill {
+  border: 0;
+  background: transparent;
+  color: var(--mute);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.pill.on { background: var(--sky-strong); color: #14161a; font-weight: 600; }
+body.vscode-dark .pill.on { color: #eef1f4; }
