@@ -1,22 +1,40 @@
+<div align="center">
+
 # Personal KB 卡片墙
 
-把 Comate `personal-kb` Skill 沉淀下来的 Markdown 卡片，在 VS Code / Comate 里渲染成卡片墙，统计全局卡片，并把同一份文件连到 Obsidian。
+**把对话里沉淀下来的知识，变成能翻、能数、能复习的卡片。**
+
+[打开在线 demo](https://rebecia.github.io/rebekah-s-home/personal-kb-vscode/docs/demo/) · [使用手册](./docs/USAGE.md) · [返回作品集](../README.md)
+
+</div>
+
+![卡片墙](https://raw.githubusercontent.com/Rebecia/rebekah-s-home/main/personal-kb-vscode/media/screenshots/wall.png)
+
+## 这是什么
+
+一个 VS Code / Comate 插件：把 Comate `personal-kb` Skill 沉淀的 Markdown 卡片渲染成卡片墙，统计全局卡片，并把同一份文件连到 Obsidian。
 
 **唯一真相是本地 Markdown：** `~/.comate/skills/personal-kb/kb/`
 
 沉淀继续在 Comate 对话里发生（说「沉淀这次」）。这个插件只负责看、数、连到 Obsidian——它不从对话里抽知识，也不上传任何内容。
 
-## 截图
+## 主要界面
 
-卡片墙
+### 卡片墙：先看结论
+
+bento 网格，最新一张放大成主卡并多显示一段「为什么重要」。顶栏按类型筛选，右上角搜标题、结论、标签。
 
 ![卡片墙](https://raw.githubusercontent.com/Rebecia/rebekah-s-home/main/personal-kb-vscode/media/screenshots/wall.png)
 
-点开一张卡
+### 卡片详情：读完整四段
+
+点任意卡片弹出详情：结论 / 为什么重要 / 怎么用 / 反例。可以跳去 Markdown 原文继续编辑。
 
 ![卡片详情](https://raw.githubusercontent.com/Rebecia/rebekah-s-home/main/personal-kb-vscode/media/screenshots/detail.png)
 
-侧栏统计
+### 侧栏统计：知道攒了多少
+
+已沉淀 / 本周新写 / 待复习三个数，分类分布环形饼图，以及 Obsidian 连接状态。
 
 ![侧栏统计](https://raw.githubusercontent.com/Rebecia/rebekah-s-home/main/personal-kb-vscode/media/screenshots/sidebar.png)
 
@@ -26,13 +44,9 @@
 npm run demo && npm run shots
 ```
 
-## 在线 demo（不用装）
+## 如何体验
 
-打开就能点：筛选、搜索、点开卡片、点标签。数据是示例卡，不是任何人的真实知识库。
-
-**https://rebecia.github.io/rebekah-s-home/personal-kb-vscode/docs/demo/**
-
-（需要先在仓库 Settings → Pages 打开 Pages，步骤见 [PUBLISH.md](PUBLISH.md)。）
+不装插件也能点：[在线 demo](https://rebecia.github.io/rebekah-s-home/personal-kb-vscode/docs/demo/)——筛选、搜索、点开卡片、点标签都能用，数据是示例卡，不是任何人的真实知识库。
 
 本地预览同一份页面：
 
@@ -119,3 +133,7 @@ scripts/                  图标生成、demo 生成、截图录屏
 ## License
 
 MIT
+
+---
+
+[← 返回作品集](../README.md)

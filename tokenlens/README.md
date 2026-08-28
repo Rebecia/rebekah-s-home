@@ -4,7 +4,7 @@
 
 **看清 AI 花了多少钱、花在哪，以及怎么省。**
 
-[打开可交互原型](./index.html) · [产品调研与决策](./产品调研与决策.md) · [返回作品集](../README.md)
+[打开在线 demo](https://rebecia.github.io/rebekah-s-home/tokenlens/) · [产品调研与决策](./产品调研与决策.md) · [返回作品集](../README.md)
 
 </div>
 
@@ -86,7 +86,15 @@ TokenLens 专注个人开发者的本地成本管理，因此明确不做：
 
 ## 如何体验
 
-直接打开 [TokenLens 交互原型](./index.html)。这是一个单文件前端原型，不需要安装依赖或运行构建命令。
+直接打开 [在线 demo](https://rebecia.github.io/rebekah-s-home/tokenlens/)，四个页面都能点。这是一个单文件前端原型，不需要安装依赖或运行构建命令。
+
+想在本地看同一份文件：
+
+```bash
+python3 -m http.server 8080 --directory tokenlens   # http://localhost:8080
+```
+
+或者直接双击 `tokenlens/index.html`。
 
 产品背后的竞品分析和范围取舍见 [产品调研与决策](./产品调研与决策.md)。
 
