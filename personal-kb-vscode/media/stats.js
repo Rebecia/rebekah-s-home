@@ -1,0 +1,89 @@
+const vscode = acquireVsCodeApi();
+const TYPE_LABEL = {
+  thinking: '思考',
+  fundamentals: '基本功',
+  idea: 'Idea',
+  pitfall: '易错',
+  life: '人生',
+  glossary: '术语'
+};
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+window.addEventListener('message', event => {
+  if (event.data?.type !== 'render') return;
+  const { stats, connectors, kbPath } = event.data.payload;
+  const types = (stats.byType || []).filter(x => x.count).sort((a, b) => b.count - a.count).slice(0, 6);
+  const sum = types.reduce((n, x) => n + x.count, 0) || 1;
+  let acc = 0;
+  const stops = types.map((x, i) => {
+    const from = (acc / sum) * 100;
+    acc += x.count;
+    const to = (acc / sum) * 100;
+    return `var(--sl${i + 1}) ${from.toFixed(2)}% ${to.toFixed(2)}%`;
+  }).join(', ');
+  const legend = types.map((x, i) => `
+    <div class="li">
+      <span class="dot" style="background:var(--sl${i + 1})"></span>
+      <span class="nm">${esc(TYPE_LABEL[x.type] || x.type)}</span>
+      <span class="ct num">${x.count}</span>
+    </div>`).join('');
+  const pie = types.length
+    ? `<div class="pie-wrap">
+        <div class="pie-hole">
+          <div class="pie" style="background: conic-gradient(${stops})"></div>
+          <div class="mid"><b class="num">${sum}</b><span>张</span></div>
+        </div>
+        <div class="legend">${legend}</div>
+      </div>`
+    : `<div class="row"><span class="lb">还没有</span></div>`;
+  const obsidian = (connectors || []).find(c => c.id === 'obsidian') || {};
+  const linked = !!obsidian.linked;
+  const due = stats.duePitfalls || 0;
+
+  document.getElementById('app').innerHTML = `
+    <div class="stack">
+      <section class="pane hero">
+        <div class="tagline"><i>◆</i> 直接说「沉淀这次」，即可积累新的卡片</div>
+        <h1>你的知识库</h1>
+        <p>思考、基本功、idea、易错点，按类型攒在一处，随时回看。</p>
+        <button class="go" data-cmd="wall">打开卡片墙</button>
+      </section>
+
+      <section class="pane strip">
+        <div class="cell"><span class="n num">${stats.total || 0}</span><span class="k">已沉淀</span></div>
+        <div class="cell"><span class="n num">${stats.createdThisWeek || 0}</span><span class="k">本周新写</span></div>
+        <div class="cell"><span class="n num ${due ? 'warn' : ''}">${due}</span><span class="k">待复习</span></div>
+      </section>
+
+      <section class="pane block">
+        <h2>分类分布 <span>${stats.tagCount || 0} 个标签</span></h2>
+        ${pie}
+      </section>
+
+      <section class="pane conn">
+        <div class="line">
+          <div class="badge">Ob</div>
+          <span class="name">Obsidian</span>
+          <span class="state ${linked ? 'ok' : ''}">${linked ? '已连接' : '未连接'}</span>
+        </div>
+        <button class="go plain" data-link="obsidian">${linked ? '重新选择 vault' : '连接 vault'}</button>
+      </section>
+
+      <div class="path">${esc(kbPath || '')}</div>
+    </div>
+  `;
+});
+
+document.addEventListener('click', e => {
+  const t = e.target;
+  if (!(t instanceof HTMLElement)) return;
+  const hit = t.closest('button');
+  if (!hit) return;
+  if (hit.dataset.link === 'obsidian') { vscode.postMessage({ type: 'linkObsidian' }); return; }
+  if (hit.dataset.cmd === 'wall') { vscode.postMessage({ type: 'openWall' }); }
+});
+
+vscode.postMessage({ type: 'ready' });

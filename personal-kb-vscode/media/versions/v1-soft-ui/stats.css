@@ -1,0 +1,83 @@
+body { padding: 14px 12px 22px; }
+
+.head {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+}
+
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+
+.tile {
+  background: var(--tile);
+  border-radius: var(--r-md);
+  padding: 12px 12px 14px;
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+.tile.wide { grid-column: 1 / -1; }
+.tile.sky { background: var(--sky); }
+.tile.cream { background: var(--cream); }
+
+.tile .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tile .cap {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.tile .sub { color: var(--mute); font-size: 11px; margin-top: 2px; }
+.tile .big {
+  margin-top: 8px;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.tile .big i { font-style: normal; font-size: 12px; font-weight: 500; color: var(--mute); }
+.tile .chip {
+  background: rgba(20,22,26,.06);
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--mute);
+}
+body.vscode-dark .tile .chip { background: rgba(255,255,255,.08); }
+
+.bars { display: flex; gap: 6px; align-items: flex-end; margin-top: 12px; height: 46px; }
+.bars div {
+  flex: 1;
+  border-radius: 999px;
+  background: var(--ink);
+  opacity: .85;
+  min-height: 6px;
+}
+.bars div.pale { background: #fff; opacity: .9; }
+body.vscode-dark .bars div.pale { background: rgba(255,255,255,.55); }
+.barlabels { display: flex; gap: 6px; margin-top: 6px; }
+.barlabels span { flex: 1; text-align: center; font-size: 9px; color: var(--mute); }
+
+.link-row {
+  margin-top: 12px;
+  background: var(--tile);
+  border-radius: var(--r-md);
+  padding: 12px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+.go {
+  border: 0;
+  background: var(--dark);
+  color: var(--page);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.foot { margin-top: 14px; color: var(--mute); font-size: 10px; word-break: break-all; line-height: 1.4; }

@@ -1,0 +1,125 @@
+body { padding: var(--s4) var(--s3) var(--s5); }
+
+.stack { display: flex; flex-direction: column; gap: var(--s3); }
+
+/* hero */
+.hero { padding: var(--s5) var(--s4); }
+.tagline {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--s2);
+  background: var(--glass-2);
+  border: 1px solid var(--hair);
+  border-radius: var(--r-md);
+  padding: 6px 10px;
+  font-size: var(--t-note);
+  line-height: 1.6;
+  color: var(--mute);
+  margin-bottom: var(--s4);
+}
+.tagline i { color: var(--amber); font-style: normal; line-height: 1.6; }
+.hero h1 {
+  margin: 0 0 var(--s2);
+  font-size: var(--t-h1);
+  line-height: 1.4;
+  font-weight: 600;
+}
+.hero p {
+  margin: 0 0 var(--s4);
+  color: var(--mute);
+  font-size: var(--t-note);
+  line-height: 1.75;
+}
+
+/* 三段指标 */
+.strip { display: flex; padding: var(--s4) var(--s1); }
+.strip .cell { flex: 1; padding: 0 var(--s3); min-width: 0; }
+.strip .cell + .cell { border-left: 1px solid var(--hair); }
+.cell .n { display: block; font-size: var(--t-h1); font-weight: 600; line-height: 1.2; }
+.cell .n.warn { color: var(--amber); }
+.cell .k { display: block; color: var(--faint); font-size: var(--t-note); margin-top: var(--s1); line-height: 1.4; }
+
+/* 分类分布 */
+.block { padding: var(--s4); }
+.block h2 {
+  margin: 0 0 var(--s4);
+  font-size: var(--t-h2);
+  font-weight: 600;
+  line-height: 1.4;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s2);
+}
+.block h2 span { color: var(--faint); font-weight: 400; font-size: var(--t-note); }
+
+.row { display: flex; align-items: center; gap: var(--s3); padding: 5px 0; }
+.row .lb { font-size: var(--t-note); width: 44px; flex: none; color: var(--mute); }
+.row .v { font-size: var(--t-note); color: var(--mute); width: 16px; text-align: right; }
+
+/* 饼图：单色灰阶 + 最大一块用琥珀 */
+.pie-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  --sl1: #e2900f;
+  --sl2: rgba(20, 22, 26, .74);
+  --sl3: rgba(20, 22, 26, .56);
+  --sl4: rgba(20, 22, 26, .40);
+  --sl5: rgba(20, 22, 26, .26);
+  --sl6: rgba(20, 22, 26, .14);
+}
+body.vscode-dark .pie-wrap {
+  --sl1: #f0a83a;
+  --sl2: rgba(238, 240, 242, .82);
+  --sl3: rgba(238, 240, 242, .62);
+  --sl4: rgba(238, 240, 242, .44);
+  --sl5: rgba(238, 240, 242, .28);
+  --sl6: rgba(238, 240, 242, .16);
+}
+
+.pie {
+  width: 92px;
+  height: 92px;
+  flex: none;
+  border-radius: 50%;
+  /* 挖成环形，中间留白放总数 */
+  mask: radial-gradient(circle at 50% 50%, transparent 0 52%, #000 53%);
+  -webkit-mask: radial-gradient(circle at 50% 50%, transparent 0 52%, #000 53%);
+}
+.pie-hole {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pie-hole .pie { position: absolute; inset: 0; }
+.pie-hole .mid { text-align: center; line-height: 1.25; }
+.pie-hole .mid b { display: block; font-size: var(--t-h2); font-weight: 600; }
+.pie-hole .mid span { font-size: var(--t-note); color: var(--faint); }
+
+.legend { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.legend .li { display: flex; align-items: center; gap: var(--s2); font-size: var(--t-note); }
+.legend .dot { width: 8px; height: 8px; border-radius: 3px; flex: none; }
+.legend .nm { color: var(--mute); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.legend .ct { margin-left: auto; color: var(--faint); }
+
+
+/* 连接器 */
+.conn { padding: var(--s4); }
+.conn .line { display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s4); }
+.conn .name { font-size: var(--t-h2); font-weight: 600; }
+.conn .state { margin-left: auto; font-size: var(--t-note); color: var(--faint); }
+.conn .state.ok { color: var(--amber); }
+.conn .go { width: 100%; justify-content: center; }
+
+.path {
+  color: var(--faint);
+  font-size: var(--t-note);
+  line-height: 1.6;
+  word-break: break-all;
+  padding: 0 var(--s1);
+}

@@ -1,0 +1,146 @@
+{
+  "name": "personal-kb",
+  "displayName": "Personal KB 卡片墙",
+  "description": "把 Comate personal-kb 沉淀的 Markdown 卡片渲染成卡片墙，统计全局卡片，并可连接到 Obsidian vault。",
+  "version": "0.1.0",
+  "publisher": "zhouxiaoyan",
+  "license": "MIT",
+  "icon": "media/logo.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Rebecia/rebekah-s-home.git",
+    "directory": "personal-kb-vscode"
+  },
+  "bugs": {
+    "url": "https://github.com/Rebecia/rebekah-s-home/issues"
+  },
+  "homepage": "https://github.com/Rebecia/rebekah-s-home/tree/main/personal-kb-vscode#readme",
+  "galleryBanner": {
+    "color": "#15171B",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "Other",
+    "Notebooks"
+  ],
+  "keywords": [
+    "knowledge",
+    "personal-kb",
+    "obsidian",
+    "cards",
+    "第二大脑",
+    "知识库"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "personalKb",
+          "title": "Personal KB",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "personalKb": [
+        {
+          "id": "personalKb.stats",
+          "name": "统计",
+          "type": "webview"
+        },
+        {
+          "id": "personalKb.cards",
+          "name": "卡片",
+          "type": "webview"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "personalKb.openWall",
+        "title": "Personal KB: 打开卡片墙",
+        "icon": "$(symbol-color)"
+      },
+      {
+        "command": "personalKb.refresh",
+        "title": "Personal KB: 刷新卡片",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "personalKb.openCard",
+        "title": "Personal KB: 打开卡片原文"
+      },
+      {
+        "command": "personalKb.linkObsidian",
+        "title": "Personal KB: 连接到 Obsidian vault"
+      },
+      {
+        "command": "personalKb.unlinkObsidian",
+        "title": "Personal KB: 取消 Obsidian 连接"
+      },
+      {
+        "command": "personalKb.revealKb",
+        "title": "Personal KB: 在 Finder 中显示知识库"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "personalKb.refresh",
+          "when": "view == personalKb.cards || view == personalKb.stats",
+          "group": "navigation"
+        },
+        {
+          "command": "personalKb.openWall",
+          "when": "view == personalKb.cards || view == personalKb.stats",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "personalKb.openCard",
+          "when": "view == personalKb.cards"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Personal KB",
+      "properties": {
+        "personalKb.kbPath": {
+          "type": "string",
+          "default": "",
+          "description": "卡片目录。留空则使用 ~/.comate/skills/personal-kb/kb/"
+        },
+        "personalKb.obsidianVault": {
+          "type": "string",
+          "default": "",
+          "description": "Obsidian vault 根目录。连接后会在其中创建指向 kb/ 的软链 Personal-KB。"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "tsc -p ./ && node --test \"out/test/*.test.js\"",
+    "icon": "node scripts/make-icon.mjs",
+    "demo": "node scripts/make-demo.mjs",
+    "shots": "node scripts/shots.mjs",
+    "serve": "python3 -m http.server 8080 --directory docs/demo",
+    "package": "vsce package --no-dependencies",
+    "vscode:prepublish": "npm run compile"
+  },
+  "devDependencies": {
+    "@types/node": "24.3.0",
+    "@types/vscode": "^1.95.0",
+    "@vscode/vsce": "3.2.1",
+    "typescript": "5.6.3"
+  }
+}
