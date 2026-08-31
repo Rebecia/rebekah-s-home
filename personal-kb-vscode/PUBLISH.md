@@ -24,14 +24,15 @@
 ### 3. 建 Marketplace Publisher 并登录
 
 1. 打开 https://marketplace.visualstudio.com/manage ，用 Microsoft / Azure DevOps 账号建 Publisher
-2. **Publisher ID 必须和 `package.json` 里的 `"publisher": "zhouxiaoyan"` 完全一致**，不一致就改其中一个
+2. **Publisher ID 必须正好是 `Rebekah`**，和 `package.json` 里的 `"publisher"` 一致。
+   注册时填的是 ID 不是显示名；ID 建完改不了，改了等于换一个插件身份，装过的人不会收到更新。
 3. 在 Azure DevOps 建 PAT：Organization 选 `All accessible organizations`，Scopes 选 `Marketplace → Manage`
 4. 登录：
 
 ```bash
 export PATH="$HOME/.local/node/bin:$PATH"
 cd "路径/personal-kb-vscode"
-npx vsce login zhouxiaoyan
+npx vsce login Rebekah
 ```
 
 ### 4. 上架
