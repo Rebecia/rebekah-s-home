@@ -14,7 +14,7 @@
 
 ### [Personal KB 卡片墙](./personal-kb-vscode/README.md)
 
-把对话里沉淀下来的知识，变成能翻、能数、能复习的卡片。一个 VS Code / Comate 插件：读本地 Markdown 卡片，渲染成卡片墙，统计分类分布，并把同一份文件连到 Obsidian。
+一个文件夹的 Markdown，就是一面结论优先的卡片墙。VS Code 插件：读本地 Markdown 卡片，按类型统计与筛选，点开只读结论，并可软链连接 Obsidian。不建库、不上传、不同步云端。
 
 [在线 demo](https://rebecia.github.io/rebekah-s-home/personal-kb-vscode/docs/demo/) · [作品介绍](./personal-kb-vscode/README.md) · [使用手册](./personal-kb-vscode/docs/USAGE.md)
 

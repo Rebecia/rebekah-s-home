@@ -79,15 +79,29 @@ function sheet(c) {
   </div>`;
 }
 
+function onboard() {
+  return `<section class="pane onboard" style="grid-column: 1 / -1">
+    <h3>${state.kbExists ? '这个文件夹里还没有卡片' : '先指一个卡片目录'}</h3>
+    <p>卡片就是一批 Markdown 文件。现在读的是 <code>${esc(state.kbPath || '')}</code></p>
+    <div class="acts">
+      <button class="go" data-cmd="personalKb.pickKbFolder">选择卡片目录</button>
+      <button class="ghost" data-cmd="personalKb.createSampleCard">创建示例卡片</button>
+    </div>
+    <p class="fmt">每张卡片一个文件：frontmatter 写 <code>title</code> / <code>type</code> / <code>tags</code> / <code>created</code>，正文写「结论 / 为什么重要 / 怎么用 / 反例」。用 Comate 的话，在对话里说「沉淀这次」也会自动往这里长卡片。</p>
+  </section>`;
+}
+
 function render() {
   const cards = visible();
   const stats = state.stats || {};
   const nav = ['all', 'thinking', 'fundamentals', 'idea', 'pitfall', 'life', 'glossary']
     .map(t => `<button class="pill ${state.filterType === t ? 'on' : ''}" data-filter="${t}">${t === 'all' ? '全部' : TYPE_LABEL[t]}</button>`)
     .join('');
-  const grid = cards.length
-    ? cards.map(tile).join('')
-    : `<div class="empty">这个分类还没有卡片。<br>在对话里说「沉淀这次」。</div>`;
+  const grid = !(state.cards || []).length
+    ? onboard()
+    : cards.length
+      ? cards.map(tile).join('')
+      : `<div class="empty">这个分类还没有卡片。<br>换个筛选，或者清空搜索词。</div>`;
   const current = (state.cards || []).find(c => c.id === openId);
   const obsidian = (state.connectors || []).find(c => c.id === 'obsidian') || {};
   const keepFocus = document.activeElement && document.activeElement.classList.contains('search');
@@ -129,6 +143,7 @@ document.addEventListener('click', e => {
   if (!(t instanceof HTMLElement)) return;
   const btn = t.closest('button');
   if (btn) {
+    if (btn.dataset.cmd) { vscode.postMessage({ type: 'cmd', id: btn.dataset.cmd }); return; }
     if (btn.dataset.filter) { state.filterType = btn.dataset.filter; render(); return; }
     if (btn.dataset.tag) { state.query = btn.dataset.tag; state.filterType = 'all'; render(); return; }
     if (btn.dataset.close) { openId = null; render(); return; }

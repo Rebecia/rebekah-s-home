@@ -6,12 +6,22 @@ export interface WallPayload {
   cards: unknown[];
   connectors: ConnectorStatus[];
   kbPath: string;
+  kbExists: boolean;
   filterType: string;
 }
 
 function nonce(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   return Array.from({ length: 32 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+}
+
+/* webview 只允许触发本插件自己的命令，别给它执行任意命令的口子 */
+function runCommandFromWebview(msg: { type?: string; id?: string }): boolean {
+  if (msg?.type !== 'cmd' || typeof msg.id !== 'string' || !msg.id.startsWith('personalKb.')) {
+    return false;
+  }
+  void vscode.commands.executeCommand(msg.id);
+  return true;
 }
 
 function shell(webview: vscode.Webview, context: vscode.ExtensionContext, cssFile: string, jsFile: string, title: string): string {
@@ -77,6 +87,8 @@ export class WallPanel {
     this.panel.webview.onDidReceiveMessage(msg => {
       if (msg?.type === 'ready') {
         this.refresh();
+      } else if (runCommandFromWebview(msg)) {
+        return;
       } else if (msg?.type === 'open' && typeof msg.id === 'string') {
         this.onOpen(msg.id);
       } else if (msg?.type === 'linkObsidian') {
@@ -112,6 +124,9 @@ class WebviewHost implements vscode.WebviewViewProvider {
         this.refresh();
         return;
       }
+      if (runCommandFromWebview(msg)) {
+        return;
+      }
       this.onMessage?.(msg);
     });
     this.refresh();
@@ -127,8 +142,6 @@ export class StatsViewProvider extends WebviewHost {
     super(context, getPayload, 'stats.css', 'stats.js', msg => {
       if (msg?.type === 'linkObsidian') {
         onLinkObsidian();
-      } else if (msg?.type === 'openWall') {
-        void vscode.commands.executeCommand('personalKb.openWall');
       }
     });
   }

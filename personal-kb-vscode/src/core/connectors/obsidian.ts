@@ -65,7 +65,16 @@ export const obsidianConnector: Connector = {
     } catch {
       // dest does not exist
     }
-    fs.symlinkSync(path.resolve(kbRoot), dest, 'dir');
+    try {
+      fs.symlinkSync(path.resolve(kbRoot), dest, 'dir');
+    } catch (err) {
+      const code = (err as NodeJS.ErrnoException).code;
+      // Windows 上建目录软链需要开发者模式或管理员权限，否则 EPERM
+      const hint = code === 'EPERM' || code === 'EACCES'
+        ? '创建软链被系统拒绝。Windows 需要开启「开发者模式」或以管理员身份运行；也可以手动把 vault 里的文件夹指向卡片目录。'
+        : `创建软链失败：${(err as Error).message}`;
+      return { ok: false, detail: hint };
+    }
     return { ok: true, target: dest, detail: `已在 vault 中创建软链 ${dest} → ${kbRoot}` };
   },
   unlink(_kbRoot: string, vaultRoot: string): LinkResult {
@@ -75,9 +84,13 @@ export const obsidianConnector: Connector = {
       if (!stat.isSymbolicLink()) {
         return { ok: false, detail: `${dest} 不是软链，未删除，以免误伤 vault 里的真实文件夹。` };
       }
-      fs.unlinkSync(dest);
     } catch {
       return { ok: false, detail: `${dest} 不存在` };
+    }
+    try {
+      fs.unlinkSync(dest);
+    } catch (err) {
+      return { ok: false, detail: `删除软链失败：${(err as Error).message}` };
     }
     return { ok: true, target: dest, detail: `已移除软链 ${dest}` };
   }

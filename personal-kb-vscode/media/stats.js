@@ -14,7 +14,26 @@ function esc(s) {
 
 window.addEventListener('message', event => {
   if (event.data?.type !== 'render') return;
-  const { stats, connectors, kbPath } = event.data.payload;
+  const { stats, connectors, kbPath, kbExists } = event.data.payload;
+
+  // 没指目录 / 目录里还没有卡片：给引导，不给空仪表盘
+  if (!kbExists || !(stats.total > 0)) {
+    document.getElementById('app').innerHTML = `
+      <div class="stack">
+        <section class="pane onboard">
+          <h3>${kbExists ? '这个文件夹里还没有卡片' : '先指一个卡片目录'}</h3>
+          <p>卡片就是一批 Markdown 文件。现在读的是<br><code>${esc(kbPath || '')}</code></p>
+          <div class="acts">
+            <button class="go" data-cmd="personalKb.pickKbFolder">选择卡片目录</button>
+            <button class="ghost" data-cmd="personalKb.createSampleCard">创建示例卡片</button>
+          </div>
+          <p class="fmt">每张卡片一个文件：frontmatter 写 <code>title</code> / <code>type</code> / <code>tags</code> / <code>created</code>，正文写「结论 / 为什么重要 / 怎么用 / 反例」。用 Comate 的话，在对话里说「沉淀这次」也会自动往这里长卡片。</p>
+        </section>
+      </div>
+    `;
+    return;
+  }
+
   const types = (stats.byType || []).filter(x => x.count).sort((a, b) => b.count - a.count).slice(0, 6);
   const sum = types.reduce((n, x) => n + x.count, 0) || 1;
   let acc = 0;
@@ -46,10 +65,10 @@ window.addEventListener('message', event => {
   document.getElementById('app').innerHTML = `
     <div class="stack">
       <section class="pane hero">
-        <div class="tagline"><i>◆</i> 直接说「沉淀这次」，即可积累新的卡片</div>
+        <div class="tagline"><i>◆</i> 写一个 Markdown 文件，就多一张卡片</div>
         <h1>你的知识库</h1>
         <p>思考、基本功、idea、易错点，按类型攒在一处，随时回看。</p>
-        <button class="go" data-cmd="wall">打开卡片墙</button>
+        <button class="go" data-cmd="personalKb.openWall">打开卡片墙</button>
       </section>
 
       <section class="pane strip">
@@ -83,7 +102,7 @@ document.addEventListener('click', e => {
   const hit = t.closest('button');
   if (!hit) return;
   if (hit.dataset.link === 'obsidian') { vscode.postMessage({ type: 'linkObsidian' }); return; }
-  if (hit.dataset.cmd === 'wall') { vscode.postMessage({ type: 'openWall' }); }
+  if (hit.dataset.cmd) { vscode.postMessage({ type: 'cmd', id: hit.dataset.cmd }); }
 });
 
 vscode.postMessage({ type: 'ready' });

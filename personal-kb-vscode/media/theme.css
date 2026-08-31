@@ -171,3 +171,36 @@ button { cursor: pointer; }
   line-height: 1.4;
 }
 .ghost:hover { border-color: var(--hair-strong); }
+
+/* 首次使用引导：没指目录、或目录里还没有卡片时显示 */
+.onboard { padding: var(--s5) var(--s4); }
+.onboard h3 {
+  margin: 0 0 var(--s2);
+  font-size: var(--t-h2);
+  font-weight: 600;
+  line-height: 1.5;
+}
+.onboard p {
+  margin: 0 0 var(--s4);
+  color: var(--mute);
+  font-size: var(--t-note);
+  line-height: 1.75;
+}
+.onboard .acts { display: flex; gap: var(--s2); flex-wrap: wrap; }
+.onboard code {
+  font-family: var(--num);
+  font-size: 10px;
+  background: var(--glass-2);
+  border: 1px solid var(--hair);
+  border-radius: 6px;
+  padding: 1px 5px;
+  word-break: break-all;
+}
+/* 格式说明里的短 code 不许断词，否则窄侧栏里会裂成两半 */
+.onboard .fmt code { word-break: keep-all; white-space: nowrap; }
+.onboard .fmt {
+  margin: var(--s4) 0 0;
+  padding-top: var(--s4);
+  border-top: 1px solid var(--hair);
+  color: var(--faint);
+}

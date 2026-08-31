@@ -56,6 +56,7 @@ const payload = {
   stats: { total: cards.length, byType, createdThisWeek: 2, duePitfalls: 1, tagCount: 14 },
   connectors: [{ id: 'obsidian', linked: true }],
   kbPath: '~/.comate/skills/personal-kb/kb',
+  kbExists: true,
   filterType: 'all'
 };
 

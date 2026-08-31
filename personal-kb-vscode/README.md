@@ -2,7 +2,7 @@
 
 # Personal KB 卡片墙
 
-**把对话里沉淀下来的知识，变成能翻、能数、能复习的卡片。**
+**一个文件夹的 Markdown，就是一面结论优先的卡片墙。**
 
 [打开在线 demo](https://rebecia.github.io/rebekah-s-home/personal-kb-vscode/docs/demo/) · [使用手册](./docs/USAGE.md) · [返回作品集](../README.md)
 
@@ -12,11 +12,13 @@
 
 ## 这是什么
 
-一个 VS Code / Comate 插件：把 Comate `personal-kb` Skill 沉淀的 Markdown 卡片渲染成卡片墙，统计全局卡片，并把同一份文件连到 Obsidian。
+一个 VS Code 插件：指一个装着 Markdown 卡片的文件夹，它把这些卡片渲染成**结论优先**的卡片墙，按类型统计，并能软链连接 Obsidian。
 
-**唯一真相是本地 Markdown：** `~/.comate/skills/personal-kb/kb/`
+**唯一真相是你本地的 Markdown 文件。** 插件只读，不建库、不上传、不同步云端。删卡片、改卡片都是直接编辑文件。
 
-沉淀继续在 Comate 对话里发生（说「沉淀这次」）。这个插件只负责看、数、连到 Obsidian——它不从对话里抽知识，也不上传任何内容。
+装完第一次打开会让你选目录，也能一键生成一张示例卡片——那张卡片本身就是格式说明。
+
+用 Comate 的话还有一条捷径：`personal-kb` Skill 会在对话里把结论沉淀成卡片（说「沉淀这次」），默认落在 `~/.comate/skills/personal-kb/kb/`，插件不配置就直接读这里。但这只是**其中一种来源**，手写、从别处导出、Obsidian 里现成的卡片都一样能用。
 
 ## 主要界面
 
@@ -79,10 +81,35 @@ Comate 用户也可以直接命令行装：
 - **侧栏 · 统计**：已沉淀 / 本周新写 / 待复习三个数，分类分布环形饼图，Obsidian 连接状态
 - **侧栏 · 卡片**：按月分组的列表，支持类型筛选与关键词搜索，点开跳原文
 - **卡片墙**（`Personal KB: 打开卡片墙`）：bento 网格，最新一张放大成主卡；点卡片看结论 / 为什么重要 / 怎么用 / 反例；标签可点筛选
-- **连接 Obsidian**：在 vault 根目录建软链 `Personal-KB` → `kb/`，两边同一份文件
+- **连接 Obsidian**：在 vault 根目录建软链 `Personal-KB` → 卡片目录，两边同一份文件
+- **首次上手**：`Personal KB: 选择卡片目录`、`Personal KB: 创建示例卡片`
 - 预留 flomo / 思源 / Notion / 印象笔记 接口，一期未接通
 
-完整用法见 [docs/USAGE.md](docs/USAGE.md)。
+## 卡片长什么样
+
+一个文件一张卡，`type` 六选一（不写就按所在目录名推断）：
+
+```markdown
+---
+title: 需求评审先对齐口径，再谈方案
+type: fundamentals
+tags: [需求, 评审]
+created: 2026-08-26
+review_after:
+---
+
+# 需求评审先对齐口径，再谈方案
+
+## 结论
+评审吵不出结果，八成不是方案分歧，是同一个指标两边算法不同。
+
+## 为什么重要
+## 怎么用
+## 反例 / 易错点
+## 来源
+```
+
+`review_after` 只有 `pitfall` 需要，到期会计入侧栏的「待复习」。`INDEX.md` 不会被当成卡片。完整说明见 [docs/USAGE.md](docs/USAGE.md)。
 
 ## 开发
 
