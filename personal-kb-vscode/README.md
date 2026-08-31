@@ -153,12 +153,14 @@ review_after:
 ## 开发
 
 ```bash
-npm test        # tsc + node --test，覆盖卡片解析、统计、Obsidian 软链
+npm test        # tsc + node --test，覆盖卡片解析、统计、Obsidian 软链、agent 接入
+npm run copy    # 改完 copy.json 后同步三处对外文案
 npm run compile
 npm run icon    # 重新生成 media/logo.png
 npm run demo    # 重新生成 docs/demo/*.html
 npm run shots   # 无头 Chrome 拍 media/screenshots/*.png
 npm run package # 打 vsix
+npm run ship:patch  # 升版本 + 打包 + 直接发 Marketplace
 ```
 
 开发模式跑（改完重开窗口即可，不用重装）：

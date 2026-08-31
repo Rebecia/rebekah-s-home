@@ -161,10 +161,13 @@
     "shots": "node scripts/shots.mjs",
     "serve": "python3 -m http.server 8080 --directory docs/demo",
     "package": "vsce package --no-dependencies",
+    "copy": "node scripts/apply-copy.mjs && node scripts/make-demo.mjs",
     "release": "node scripts/prepare-release.mjs",
     "release:patch": "node scripts/prepare-release.mjs patch",
     "release:minor": "node scripts/prepare-release.mjs minor",
     "release:major": "node scripts/prepare-release.mjs major",
+    "ship:patch": "node scripts/prepare-release.mjs patch --publish",
+    "ship:minor": "node scripts/prepare-release.mjs minor --publish",
     "vscode:prepublish": "npm run compile"
   },
   "devDependencies": {
