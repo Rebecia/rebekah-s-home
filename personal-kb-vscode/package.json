@@ -3,7 +3,7 @@
   "displayName": "Personal KB 卡片墙",
   "description": "把一个文件夹里的 Markdown 卡片渲染成卡片墙：按类型统计与筛选、结论优先阅读、软链连接 Obsidian。也可直接读 Comate personal-kb 沉淀的卡片。",
   "version": "0.2.0",
-  "publisher": "zhouxiaoyan",
+  "publisher": "Rebekah",
   "license": "MIT",
   "icon": "media/logo.png",
   "repository": {
