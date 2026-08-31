@@ -14,9 +14,9 @@
 
 ### [Personal KB 卡片墙](./personal-kb-vscode/README.md)
 
-一个文件夹的 Markdown，就是一面结论优先的卡片墙。VS Code 插件：读本地 Markdown 卡片，按类型统计与筛选，点开只读结论，并可软链连接 Obsidian。不建库、不上传、不同步云端。
+一个文件夹的 Markdown，就是一面结论优先的卡片墙。VS Code 插件：读本地 Markdown 卡片，按类型统计与筛选，点开只读结论，并可软链连接 Obsidian。不建库、不上传、不同步云端。已上架 VS Code 插件市场。
 
-[在线 demo](https://rebecia.github.io/rebekah-s-home/personal-kb-vscode/docs/demo/) · [作品介绍](./personal-kb-vscode/README.md) · [使用手册](./personal-kb-vscode/docs/USAGE.md)
+[装到 VS Code](https://marketplace.visualstudio.com/items?itemName=Rebekah.personal-kb) · [在线 demo](https://rebecia.github.io/rebekah-s-home/personal-kb-vscode/docs/demo/) · [作品介绍](./personal-kb-vscode/README.md) · [使用手册](./personal-kb-vscode/docs/USAGE.md)
 
 ![Personal KB 卡片墙预览](./personal-kb-vscode/media/screenshots/wall.png)
 

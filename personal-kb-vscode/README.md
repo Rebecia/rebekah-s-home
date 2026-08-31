@@ -4,7 +4,9 @@
 
 **一个文件夹的 Markdown，就是一面结论优先的卡片墙。**
 
-[打开在线 demo](https://rebecia.github.io/rebekah-s-home/personal-kb-vscode/docs/demo/) · [使用手册](./docs/USAGE.md) · [返回作品集](../README.md)
+[![Marketplace](https://img.shields.io/visual-studio-marketplace/v/Rebekah.personal-kb?label=VS%20Code%20Marketplace&color=15171b)](https://marketplace.visualstudio.com/items?itemName=Rebekah.personal-kb)
+
+[装到 VS Code](https://marketplace.visualstudio.com/items?itemName=Rebekah.personal-kb) · [打开在线 demo](https://rebecia.github.io/rebekah-s-home/personal-kb-vscode/docs/demo/) · [使用手册](./docs/USAGE.md) · [返回作品集](../README.md)
 
 </div>
 
@@ -58,23 +60,35 @@ npm run serve      # http://localhost:8080
 
 或者直接双击 `docs/demo/index.html`——单文件、离线、用的是插件里同一份 CSS。
 
-## 快速开始
+## 安装
+
+在 VS Code 里搜 `Personal KB 卡片墙`，或者命令面板执行：
+
+```
+ext install Rebekah.personal-kb
+```
+
+也可以直接打开 [Marketplace 页面](https://marketplace.visualstudio.com/items?itemName=Rebekah.personal-kb) 点 Install。
+
+装完 `Developer: Reload Window`，左侧活动栏会出现 Personal KB 图标。
+
+Comate 用户命令行装：
+
+```bash
+"/Applications/Comate.app/Contents/Resources/app/bin/comate" \
+  --install-extension Rebekah.personal-kb
+```
+
+## 从源码构建
 
 ```bash
 export PATH="$HOME/.local/node/bin:$PATH"   # 本机 Node 不在 PATH 时需要
 npm install
 npm test
-npm run package     # 产出 personal-kb-0.1.0.vsix
+npm run package     # 产出 personal-kb-<version>.vsix
 ```
 
-安装：命令面板 → **Extensions: Install from VSIX…** → 选这个 `.vsix` → `Developer: Reload Window`。
-
-Comate 用户也可以直接命令行装：
-
-```bash
-"/Applications/Comate.app/Contents/Resources/app/bin/comate" \
-  --install-extension personal-kb-0.1.0.vsix --force
-```
+然后命令面板 → **Extensions: Install from VSIX…** → 选这个 `.vsix`。
 
 ## 能做什么
 
