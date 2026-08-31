@@ -59,7 +59,23 @@ function groups(cards) {
   return out;
 }
 
+function onboard() {
+  return `<section class="pane onboard">
+    <h3>${state.kbExists ? '这个文件夹里还没有卡片' : '先指一个卡片目录'}</h3>
+    <p>卡片就是一批 Markdown 文件。现在读的是<br><code>${esc(state.kbPath || '')}</code></p>
+    <div class="acts">
+      <button class="go" data-cmd="personalKb.pickKbFolder">选择卡片目录</button>
+      <button class="ghost" data-cmd="personalKb.createSampleCard">创建示例卡片</button>
+    </div>
+  </section>`;
+}
+
 function render() {
+  const all = state.cards || [];
+  if (!all.length) {
+    document.getElementById('app').innerHTML = onboard();
+    return;
+  }
   const cards = visible();
   const nav = ['all', 'thinking', 'fundamentals', 'idea', 'pitfall', 'life', 'glossary']
     .map(t => `<button class="pill ${state.filterType === t ? 'on' : ''}" data-filter="${t}">${t === 'all' ? '全部' : TYPE_LABEL[t]}</button>`)
@@ -89,6 +105,11 @@ function render() {
 document.addEventListener('click', e => {
   const t = e.target;
   if (!(t instanceof HTMLElement)) return;
+  const btn = t.closest('button');
+  if (btn && btn.dataset.cmd) {
+    vscode.postMessage({ type: 'cmd', id: btn.dataset.cmd });
+    return;
+  }
   if (t.dataset.filter) {
     state.filterType = t.dataset.filter;
     render();

@@ -6,6 +6,7 @@ import test from 'node:test';
 import { parseCard, parseTags } from '../core/parse';
 import { buildStats, loadCards } from '../core/library';
 import { obsidianConnector, isLinkedTo, OBSIDIAN_FOLDER } from '../core/connectors/obsidian';
+import { writeSampleCard } from '../core/sample';
 
 const fixtureRoot = path.resolve(__dirname, '../../fixtures/kb');
 
@@ -57,5 +58,38 @@ test('obsidian connector 用软链连接且可安全取消', () => {
   const removed = obsidianConnector.unlink(kb, vault);
   assert.equal(removed.ok, true);
   assert.equal(fs.existsSync(dest), false);
+  fs.rmSync(tmp, { recursive: true, force: true });
+});
+
+test('vault 里已有同名真实文件夹时不覆盖也不删除', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pkb-occupied-'));
+  const kb = path.join(tmp, 'kb');
+  const vault = path.join(tmp, 'vault');
+  fs.mkdirSync(kb);
+  fs.mkdirSync(vault);
+  const occupied = path.join(vault, OBSIDIAN_FOLDER);
+  fs.mkdirSync(occupied);
+  fs.writeFileSync(path.join(occupied, '我的笔记.md'), '别动我', 'utf8');
+
+  assert.equal(obsidianConnector.link(kb, vault).ok, false);
+  assert.equal(obsidianConnector.unlink(kb, vault).ok, false);
+  assert.equal(fs.readFileSync(path.join(occupied, '我的笔记.md'), 'utf8'), '别动我');
+  fs.rmSync(tmp, { recursive: true, force: true });
+});
+
+test('示例卡片写出来后能被解析和统计，重复调用不覆盖已改内容', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pkb-sample-'));
+  const file = writeSampleCard(tmp, '2026-08-28');
+  assert.ok(fs.existsSync(file));
+
+  const cards = loadCards(tmp);
+  assert.equal(cards.length, 1);
+  assert.equal(cards[0].type, 'thinking');
+  assert.ok(cards[0].conclusion.length > 0);
+  assert.equal(buildStats(cards, new Date('2026-08-28T10:00:00')).total, 1);
+
+  fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replace('这就是一张卡片', '我改过的标题'), 'utf8');
+  writeSampleCard(tmp, '2026-08-28');
+  assert.match(fs.readFileSync(file, 'utf8'), /我改过的标题/);
   fs.rmSync(tmp, { recursive: true, force: true });
 });

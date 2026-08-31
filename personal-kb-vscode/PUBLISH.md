@@ -1,77 +1,77 @@
 # 上架清单
 
-当前状态：**已打包，未上架**。`personal-kb-0.1.0.vsix` 可直接本地安装。
+当前状态：**0.2.0 已打包，未上架。** `personal-kb-0.2.0.vsix` 可直接本地安装。
 
-## 上架前必须确认
+代码侧的上架阻塞项已清（首次运行引导、Windows 软链、定位放宽），剩下的都需要人工操作或账号权限。
 
-- [x] 截图已生成：`media/screenshots/{wall,detail,sidebar}.png`，由 `npm run demo && npm run shots`
-      用无头 Chrome 拍的，改完界面重跑即可。
-- [ ] **仓库是 monorepo，README 里的图必须用绝对 URL。** 插件放在
-      `Rebecia/rebekah-s-home` 的子目录 `personal-kb-vscode/` 下。
-      vsce 会把 README 里的相对路径改写成「仓库根 + 路径」，在子目录场景下会指错，
-      所以 README 里的三张图写的是完整 raw 链接：
-      `https://raw.githubusercontent.com/Rebecia/rebekah-s-home/main/personal-kb-vscode/media/screenshots/*.png`
-      如果实际推上去的目录名不叫 `personal-kb-vscode`，这三个链接和 `package.json` 里的
-      `repository.directory` / `homepage` 都要改。
-- [ ] 图片必须真的推到 GitHub 上，raw 链接才有内容；只打进 vsix 不管用。
-- [ ] 使用视频：**不放**。改用 GitHub Pages 上的可交互 demo（见下节），读者能自己点，比录屏有用。
-      真要录屏：`./scripts/capture.sh video 40`，但 `.mov` 不能直接嵌 README，
-      得先拖进 GitHub issue 输入框换一个可嵌入链接。
-- [ ] README 第一屏那句话确认过：说清「沉淀发生在 Comate 对话里，本插件只负责看和连」。
-- [ ] 决定要不要公开。插件读的是 `~/.comate/skills/personal-kb/kb/`，
-      公开版要写清默认路径，避免误解为会上传内容。
+## 只有你能做的四步（按顺序）
 
-## 开 GitHub Pages（在线 demo）
+### 1. 自己开一遍，确认渲染没问题
 
-demo 页已经生成好并会随代码提交：`docs/demo/index.html`（卡片墙）、`docs/demo/sidebar.html`（统计侧栏）。
-两页都是单文件、无外部依赖，纯静态托管即可。
+我验证过单测、静态渲染和无头浏览器截图，但**从没在真实 VS Code / Comate 宿主里看过界面**。上架前必须你自己确认：
 
-1. 仓库 → **Settings → Pages**
-2. **Source** 选 `Deploy from a branch`，**Branch** 选 `main`，**Folder** 选 `/ (root)`，Save
-3. 等一两分钟，demo 地址就是
-   **https://rebecia.github.io/rebekah-s-home/personal-kb-vscode/docs/demo/**
-4. 顺手在**仓库根目录**放一个空文件 `.nojekyll`。
-   Pages 默认走 Jekyll，遇到 monorepo 里某些 Markdown 可能构建失败；
-   放了 `.nojekyll` 就跳过 Jekyll，直接当静态文件发。
-   注意必须在仓库根，放在子目录里没用。
+- 侧栏两个视图 + 卡片墙 + 点开一张卡的详情浮层
+- 切一次深色主题（`Developer: Toggle Light/Dark Theme` 或设置里换）
+- 把 `personalKb.kbPath` 改成一个不存在的路径，确认出现引导块而不是空白或报错，点「创建示例卡片」能生成并打开卡片，然后改回来
 
-选 `/ (root)` 而不是 `/docs`，是因为这是 monorepo：选 `/docs` 会把发布根锁到仓库根的 `docs/`，
-和本插件自己的 `personal-kb-vscode/docs/` 不是一回事。
+### 2. 开 GitHub Pages
 
-想只发这个子项目、并且让 demo 落在更短的地址上，可以改用 Actions 部署
-（`actions/upload-pages-artifact` 只上传 `personal-kb-vscode/docs/demo`）。
-代价是整个仓库的 Pages 都会被这个 workflow 接管，如果以后 `tokenlens` 之类也要发页面就得改成汇总站点。
-一期不建议。
+否则 README 里的在线 demo 链接是 404，Marketplace 页面会挂一个死链。
 
-本地先验一遍（和线上同一份文件）：
+`Settings → Pages`：Source `Deploy from a branch`，Branch `main`，Folder **`/ (root)`**，Save。等 1–2 分钟。
+（`.nojekyll` 已在仓库根，不会卡 Jekyll 构建。）
 
-```bash
-npm run serve      # http://localhost:8080
-```
+### 3. 建 Marketplace Publisher 并登录
 
-## 上架步骤
+1. 打开 https://marketplace.visualstudio.com/manage ，用 Microsoft / Azure DevOps 账号建 Publisher
+2. **Publisher ID 必须和 `package.json` 里的 `"publisher": "zhouxiaoyan"` 完全一致**，不一致就改其中一个
+3. 在 Azure DevOps 建 PAT：Organization 选 `All accessible organizations`，Scopes 选 `Marketplace → Manage`
+4. 登录：
 
 ```bash
 export PATH="$HOME/.local/node/bin:$PATH"
-
-# 1. 在 https://marketplace.visualstudio.com/manage 建 Publisher（需要 Azure DevOps 账号）
-#    Publisher ID 必须和 package.json 里的 "publisher": "zhouxiaoyan" 一致
-
-# 2. 在 Azure DevOps 建 PAT：Organization 选 All accessible organizations，
-#    Scopes 选 Marketplace → Manage
+cd "路径/personal-kb-vscode"
 npx vsce login zhouxiaoyan
-
-# 3. 改版本号 + 写 CHANGELOG，然后
-npm test
-npm run package        # 先出 vsix 本地装一遍，确认没问题
-npx vsce publish       # 真正上架
 ```
+
+### 4. 上架
+
+```bash
+npm test && npm run package        # 先本地装一遍确认
+npx vsce publish                   # 真正上架
+```
+
+上架后几分钟内可搜到；README 里的图走的是 GitHub raw 链接，仓库公开即可显示。
 
 ## 日常改版
 
 ```bash
 npm test
 # 改 package.json 的 version + CHANGELOG.md
+npm run demo && npm run shots      # 界面变了就重新生成 demo 和截图
 npm run package
-# 命令面板 → Extensions: Install from VSIX…
+npx vsce publish                   # 或者只出 vsix 本地装
 ```
+
+## 已经就绪，不用再管
+
+- icon（`media/logo.png`，脚本生成）、LICENSE、CHANGELOG
+- `repository` / `bugs` / `homepage` 指向 `Rebecia/rebekah-s-home` 的 `personal-kb-vscode` 子目录
+- README 三张截图用绝对 raw 链接（monorepo 子目录下相对路径会被 vsce 改写到仓库根，会变破图）
+- `.vscodeignore`：源码、测试、脚本、截图、demo 都排除，包只有 24 个文件 37KB
+- vsce 打包零 warning，单测 7/7
+
+## 开 GitHub Pages 的两个坑
+
+- Folder 必须选 `/ (root)`，不能选 `/docs`。这是 monorepo，选 `/docs` 会把发布根锁到仓库根的 `docs/`，跟 `personal-kb-vscode/docs/` 不是一回事。
+- `.nojekyll` 必须在仓库根，放子目录没用。
+
+本地先验同一份文件：
+
+```bash
+npm run serve      # http://localhost:8080
+```
+
+## 想只发这个子项目
+
+可以改用 Actions 部署（`actions/upload-pages-artifact` 只上传 `personal-kb-vscode/docs/demo`），代价是整个仓库的 Pages 被这个 workflow 接管，以后 `tokenlens` 要发页面就得改成汇总站点。一期不建议。
