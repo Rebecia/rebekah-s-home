@@ -81,13 +81,13 @@ function sheet(c) {
 
 function onboard() {
   return `<section class="pane onboard" style="grid-column: 1 / -1">
-    <h3>${state.kbExists ? '这个文件夹里还没有卡片' : '先指一个卡片目录'}</h3>
-    <p>卡片就是一批 Markdown 文件。现在读的是 <code>${esc(state.kbPath || '')}</code></p>
+    <h3>还没有卡片</h3>
+    <p>在 AI 助手里说一句「沉淀本次」，卡片会自动写到 <code>${esc(state.kbPath || '')}</code></p>
     <div class="acts">
-      <button class="go" data-cmd="personalKb.pickKbFolder">选择卡片目录</button>
-      <button class="ghost" data-cmd="personalKb.createSampleCard">创建示例卡片</button>
+      <button class="go" data-cmd="personalKb.connectAgents">接入 AI 助手</button>
+      <button class="ghost" data-cmd="personalKb.createSampleCard">先看张示例</button>
     </div>
-    <p class="fmt">每张卡片一个文件：frontmatter 写 <code>title</code> / <code>type</code> / <code>tags</code> / <code>created</code>，正文写「结论 / 为什么重要 / 怎么用 / 反例」。用 Comate 的话，在对话里说「沉淀这次」也会自动往这里长卡片。</p>
+    <p class="fmt">接入会往 Comate / Claude Code / Codex / Cursor 的指令文件写一段「怎么沉淀」，随时可以移除。也可以自己手写卡片：frontmatter 写 <code>title</code> / <code>type</code> / <code>tags</code> / <code>created</code>，正文写「结论 / 为什么重要 / 怎么用 / 反例」。</p>
   </section>`;
 }
 

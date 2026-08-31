@@ -2,7 +2,7 @@
 
 # Personal KB 卡片墙
 
-**一个文件夹的 Markdown，就是一面结论优先的卡片墙。**
+**和 AI 干完一件事，说一句「沉淀本次」，结论就变成一张知识卡片。**
 
 [![Marketplace](https://img.shields.io/visual-studio-marketplace/v/Rebekah.personal-kb?label=VS%20Code%20Marketplace&color=15171b)](https://marketplace.visualstudio.com/items?itemName=Rebekah.personal-kb)
 
@@ -12,15 +12,39 @@
 
 ![卡片墙](https://raw.githubusercontent.com/Rebecia/rebekah-s-home/main/personal-kb-vscode/media/screenshots/wall.png)
 
-## 这是什么
+## 怎么用
 
-一个 VS Code 插件：指一个装着 Markdown 卡片的文件夹，它把这些卡片渲染成**结论优先**的卡片墙，按类型统计，并能软链连接 Obsidian。
+### 1. 接入你的 AI 助手
 
-**唯一真相是你本地的 Markdown 文件。** 插件只读，不建库、不上传、不同步云端。删卡片、改卡片都是直接编辑文件。
+装完插件会弹一次，列出本机检测到的助手让你勾（默认全勾）。也可以随时用命令面板搜
+`Personal KB: 接入 AI 助手`。
 
-装完第一次打开会让你选目录，也能一键生成一张示例卡片——那张卡片本身就是格式说明。
+支持 **Comate**、**Claude Code**、**Codex**、**Cursor**。接入做的事是往它们各自的指令文件写一段
+「什么时候沉淀、卡片写到哪、什么格式」：
 
-用 Comate 的话还有一条捷径：`personal-kb` Skill 会在对话里把结论沉淀成卡片（说「沉淀这次」），默认落在 `~/.comate/skills/personal-kb/kb/`，插件不配置就直接读这里。但这只是**其中一种来源**，手写、从别处导出、Obsidian 里现成的卡片都一样能用。
+- Comate / Claude Code → `~/.comate/skills/personal-kb/SKILL.md`、`~/.claude/skills/personal-kb/SKILL.md`
+- Codex → 在 `~/.codex/AGENTS.md` 里插一段带 `<!-- personal-kb:begin -->` 标记的块
+- Cursor → `~/.cursor/rules/personal-kb.mdc`
+
+没装的助手不会被创建目录。已经有同名文件而且不是插件写的，会跳过并告诉你，不覆盖。
+不想要了就搜 `Personal KB: 移除 AI 助手的沉淀指令`，只删标记内那段，你自己写的内容不动。
+
+### 2. 说一句话
+
+聊完一件事，说「沉淀本次」。助手会先把 1–3 张候选卡片报给你——标题、类型、一句话结论
+——**你点头它才写文件**。
+
+不用记固定咒语，**按意图识别**：「记一下这个」「存成卡片」「这条值得留」「以后还会用到」
+「save this」都算。任务收尾时如果本轮有值得留的东西，助手也会主动问你要不要沉淀。
+
+卡片落在 `~/Personal-KB/`，按类型分六个目录。插件监听这个目录，文件一写出来卡片墙就刷新。
+
+### 3. 看卡片
+
+命令面板搜 `Personal KB: 打开卡片墙`，所有卡片摊在一个网格里。顶栏按类型筛，右上角搜标题、
+结论和标签。点一张看全文，再点一下跳到 md 原文接着写。
+
+不接入助手也能用——卡片自己手写就行，格式见下。想换存放位置，点侧栏的「选择卡片目录」。
 
 ## 主要界面
 
@@ -95,8 +119,9 @@ npm run package     # 产出 personal-kb-<version>.vsix
 - **侧栏 · 统计**：已沉淀 / 本周新写 / 待复习三个数，分类分布环形饼图，Obsidian 连接状态
 - **侧栏 · 卡片**：按月分组的列表，支持类型筛选与关键词搜索，点开跳原文
 - **卡片墙**（`Personal KB: 打开卡片墙`）：bento 网格，最新一张放大成主卡；点卡片看结论 / 为什么重要 / 怎么用 / 反例；标签可点筛选
+- **接入 AI 助手**（`Personal KB: 接入 AI 助手`）：给 Comate / Claude Code / Codex / Cursor 写沉淀指令，可一键移除
 - **连接 Obsidian**：在 vault 根目录建软链 `Personal-KB` → 卡片目录，两边同一份文件
-- **首次上手**：`Personal KB: 选择卡片目录`、`Personal KB: 创建示例卡片`
+- **换存放位置**：`Personal KB: 选择卡片目录`；从 0.3.0 之前的位置搬卡片用 `Personal KB: 从旧位置复制卡片`
 - 预留 flomo / 思源 / Notion / 印象笔记 接口，一期未接通
 
 ## 卡片长什么样
@@ -157,6 +182,9 @@ src/
     types.ts              Card / Stats / 六种类型
     parse.ts              frontmatter 与小节解析
     library.ts            扫目录、排序、算统计
+    protocol.ts           沉淀协议正文（各 agent 共用一份）
+    agents.ts             检测 agent、写入/移除沉淀指令
+    migrate.ts            从旧卡片目录搬家
     connectors/obsidian.ts  软链连接
 media/                    theme.css + 三个视图的 css/js
 docs/USAGE.md             使用手册
@@ -166,10 +194,10 @@ scripts/                  图标生成、demo 生成、截图录屏
 
 ## 明确不做
 
-- 不在插件里从对话抽知识（那是 Skill 的事）
+- 插件自己不调模型、不抽知识：提炼是 AI 助手干的，插件只负责给它指令和展示结果
 - 不双向同步 Notion / 印象笔记
 - 不把云端库当主库
-- 不上传卡片内容，插件全程只读本地文件
+- 不上传卡片内容，插件只读写本地文件
 
 ## License
 

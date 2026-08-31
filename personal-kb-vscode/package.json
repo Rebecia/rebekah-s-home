@@ -1,8 +1,8 @@
 {
   "name": "personal-kb",
   "displayName": "Personal KB 卡片墙",
-  "description": "把一个文件夹里的 Markdown 卡片渲染成卡片墙：按类型统计与筛选、结论优先阅读、软链连接 Obsidian。也可直接读 Comate personal-kb 沉淀的卡片。",
-  "version": "0.2.0",
+  "description": "在和 AI 对话干活的过程里，总会冒出值得留下来的灵感和结论。忙完在当前对话里说一句「沉淀本次」之类的话，就生成一张知识卡片。插件主页把卡片摊成一面墙，按类型筛、搜标题和标签，帮你攒出自己的知识库。",
+  "version": "0.3.0",
   "publisher": "Rebekah",
   "license": "MIT",
   "icon": "media/logo.png",
@@ -100,6 +100,18 @@
         "title": "Personal KB: 创建示例卡片"
       },
       {
+        "command": "personalKb.connectAgents",
+        "title": "Personal KB: 接入 AI 助手（开启自动沉淀）"
+      },
+      {
+        "command": "personalKb.disconnectAgents",
+        "title": "Personal KB: 移除 AI 助手的沉淀指令"
+      },
+      {
+        "command": "personalKb.migrateLegacy",
+        "title": "Personal KB: 从旧位置复制卡片"
+      },
+      {
         "command": "personalKb.revealKb",
         "title": "Personal KB: 在文件管理器中显示卡片目录"
       }
@@ -130,7 +142,7 @@
         "personalKb.kbPath": {
           "type": "string",
           "default": "",
-          "markdownDescription": "卡片目录：一个装着 Markdown 卡片的文件夹，可以有子目录。留空则回退到 Comate personal-kb 的默认路径 `~/.comate/skills/personal-kb/kb/`。"
+          "markdownDescription": "卡片目录：一个装着 Markdown 卡片的文件夹，可以有子目录。留空则用默认位置 `~/Personal-KB/`。"
         },
         "personalKb.obsidianVault": {
           "type": "string",

@@ -7,6 +7,11 @@ import { Card, CARD_TYPES, CardType, Stats, TypeCount } from './types';
 const SKIP = new Set(['INDEX.md']);
 
 export function defaultKbPath(): string {
+  return path.join(os.homedir(), 'Personal-KB');
+}
+
+/** 0.3.0 之前卡片存在 Comate Skill 目录里，用来判断要不要提示搬家。 */
+export function legacyKbPath(): string {
   return path.join(os.homedir(), '.comate', 'skills', 'personal-kb', 'kb');
 }
 
