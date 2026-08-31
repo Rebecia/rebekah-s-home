@@ -1,68 +1,63 @@
-# 上架清单
+# 发版手册
 
-当前状态：**0.2.0 已打包，未上架。** `personal-kb-0.2.0.vsix` 可直接本地安装。
+当前状态：**0.2.0 已上架。** https://marketplace.visualstudio.com/items?itemName=Rebekah.personal-kb
 
-代码侧的上架阻塞项已清（首次运行引导、Windows 软链、定位放宽），剩下的都需要人工操作或账号权限。
+Publisher ID 是 `Rebekah`（不可改），必须和 `package.json` 里的 `"publisher"` 永远一致。
 
-## 只有你能做的四步（按顺序）
+## 日常改版：一条命令 + 一个 tag
 
-### 1. 自己开一遍，确认渲染没问题
-
-我验证过单测、静态渲染和无头浏览器截图，但**从没在真实 VS Code / Comate 宿主里看过界面**。上架前必须你自己确认：
-
-- 侧栏两个视图 + 卡片墙 + 点开一张卡的详情浮层
-- 切一次深色主题（`Developer: Toggle Light/Dark Theme` 或设置里换）
-- 把 `personalKb.kbPath` 改成一个不存在的路径，确认出现引导块而不是空白或报错，点「创建示例卡片」能生成并打开卡片，然后改回来
-
-### 2. 开 GitHub Pages
-
-否则 README 里的在线 demo 链接是 404，Marketplace 页面会挂一个死链。
-
-`Settings → Pages`：Source `Deploy from a branch`，Branch `main`，Folder **`/ (root)`**，Save。等 1–2 分钟。
-（`.nojekyll` 已在仓库根，不会卡 Jekyll 构建。）
-
-### 3. 建 Marketplace Publisher 并登录
-
-1. 打开 https://marketplace.visualstudio.com/manage ，用 Microsoft / Azure DevOps 账号建 Publisher
-2. **Publisher ID 必须正好是 `Rebekah`**，和 `package.json` 里的 `"publisher"` 一致。
-   注册时填的是 ID 不是显示名；ID 建完改不了，改了等于换一个插件身份，装过的人不会收到更新。
-3. 在 Azure DevOps 建 PAT：Organization 选 `All accessible organizations`，Scopes 选 `Marketplace → Manage`
-4. 登录：
+> 在 **`rebekah-s-home/personal-kb-vscode`** 这份工作副本里做。tag 必须打在 `rebekah-s-home` 仓库上，CI 才会被触发。
 
 ```bash
 export PATH="$HOME/.local/node/bin:$PATH"
-cd "路径/personal-kb-vscode"
-npx vsce login Rebekah
+cd ~/Desktop/工作/rebekah-s-home/personal-kb-vscode
+
+npm run release:patch        # 修 bug；加功能用 release:minor
 ```
 
-### 4. 上架
+这一条命令会：改版本号 → 在 CHANGELOG 顶部插一段 TODO 占位 → 重新生成 demo 页和截图 → 跑单测 → 打出 vsix。任何一步失败就停住，不会留下半成品。
+
+然后人工做三件事：
+
+1. 把 CHANGELOG.md 里那一版的 `TODO` 换成真内容（CI 会检查这一版有没有条目，但不会检查你写了什么）
+2. 本地装一遍看一眼：
+   ```bash
+   "/Applications/Comate.app/Contents/Resources/app/bin/comate" --install-extension personal-kb-<版本>.vsix --force
+   ```
+3. 提交并打 tag，剩下的交给 CI：
+   ```bash
+   git add -A && git commit -m "release: <版本>"
+   git tag v<版本> && git push && git push --tags
+   ```
+
+tag 一推上去，仓库根的 `.github/workflows/personal-kb-release.yml` 就会跑：校验 tag 和 `package.json` 版本号一致 → 校验 CHANGELOG 有这一版 → 跑单测 → `vsce publish` 发到 Marketplace → 把 vsix 挂到 GitHub Release，说明取 CHANGELOG 里这一版的段落。
+
+（workflow 必须放在**仓库根**的 `.github/workflows/`，放 `personal-kb-vscode/.github/` 里 GitHub 根本不会读。所以它用 `working-directory: personal-kb-vscode` 进子目录。）
+
+**前置条件（做一次）**：在 GitHub 仓库 `Settings → Secrets and variables → Actions` 加一个 secret `VSCE_PAT`，值是 Azure DevOps 的 PAT（Organization 选 `All accessible organizations`，Scopes 选 `Marketplace → Manage`）。没配的话 CI 会在 publish 那步失败，本地照样能 `npx vsce publish` 手动发。
+
+### 不想走 CI 的时候
 
 ```bash
-npm test && npm run package        # 先本地装一遍确认
-npx vsce publish                   # 真正上架
+npm run release:patch
+# 补 CHANGELOG
+npx vsce publish            # 本地直接发，需要先 npx vsce login Rebekah
 ```
 
-上架后几分钟内可搜到；README 里的图走的是 GitHub raw 链接，仓库公开即可显示。
+### PAT 过期了
 
-## 日常改版
-
-```bash
-npm test
-# 改 package.json 的 version + CHANGELOG.md
-npm run demo && npm run shots      # 界面变了就重新生成 demo 和截图
-npm run package
-npx vsce publish                   # 或者只出 vsix 本地装
-```
+Azure DevOps 的 PAT 最长一年。过期后 CI 会报 401，重建一个 PAT 覆盖 `VSCE_PAT` 这个 secret 即可，跟插件身份无关。
 
 ## 已经就绪，不用再管
 
+- GitHub Pages 已开（`main` + `/ (root)`），README 里的在线 demo 链接可用
 - icon（`media/logo.png`，脚本生成）、LICENSE、CHANGELOG
 - `repository` / `bugs` / `homepage` 指向 `Rebecia/rebekah-s-home` 的 `personal-kb-vscode` 子目录
 - README 三张截图用绝对 raw 链接（monorepo 子目录下相对路径会被 vsce 改写到仓库根，会变破图）
 - `.vscodeignore`：源码、测试、脚本、截图、demo 都排除，包只有 24 个文件 37KB
 - vsce 打包零 warning，单测 7/7
 
-## 开 GitHub Pages 的两个坑
+## GitHub Pages 的两个坑（重配时才需要看）
 
 - Folder 必须选 `/ (root)`，不能选 `/docs`。这是 monorepo，选 `/docs` 会把发布根锁到仓库根的 `docs/`，跟 `personal-kb-vscode/docs/` 不是一回事。
 - `.nojekyll` 必须在仓库根，放子目录没用。

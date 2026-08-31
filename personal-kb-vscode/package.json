@@ -149,6 +149,10 @@
     "shots": "node scripts/shots.mjs",
     "serve": "python3 -m http.server 8080 --directory docs/demo",
     "package": "vsce package --no-dependencies",
+    "release": "node scripts/prepare-release.mjs",
+    "release:patch": "node scripts/prepare-release.mjs patch",
+    "release:minor": "node scripts/prepare-release.mjs minor",
+    "release:major": "node scripts/prepare-release.mjs major",
     "vscode:prepublish": "npm run compile"
   },
   "devDependencies": {
