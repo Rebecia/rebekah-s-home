@@ -61,11 +61,11 @@ function groups(cards) {
 
 function onboard() {
   return `<section class="pane onboard">
-    <h3>${state.kbExists ? '这个文件夹里还没有卡片' : '先指一个卡片目录'}</h3>
-    <p>卡片就是一批 Markdown 文件。现在读的是<br><code>${esc(state.kbPath || '')}</code></p>
+    <h3>还没有卡片</h3>
+    <p>在 AI 助手里说一句「沉淀本次」，卡片会自动写到<br><code>${esc(state.kbPath || '')}</code></p>
     <div class="acts">
-      <button class="go" data-cmd="personalKb.pickKbFolder">选择卡片目录</button>
-      <button class="ghost" data-cmd="personalKb.createSampleCard">创建示例卡片</button>
+      <button class="go" data-cmd="personalKb.connectAgents">接入 AI 助手</button>
+      <button class="ghost" data-cmd="personalKb.createSampleCard">先看张示例</button>
     </div>
   </section>`;
 }
@@ -87,7 +87,7 @@ function render() {
         <div class="gtitle">${esc(g.key)} · ${g.items.length}</div>
         ${g.items.map(card).join('')}
       </section>`).join('')
-    : '<div class="empty">没有匹配的卡片。<br>在对话里说「沉淀这次」。</div>';
+    : '<div class="empty">没有匹配的卡片。<br>在对话里说「沉淀本次」。</div>';
   document.getElementById('app').innerHTML = `
     <div class="bar"><input class="search" placeholder="搜索卡片" value="${esc(state.query)}"></div>
     <div class="nav">${nav}</div>

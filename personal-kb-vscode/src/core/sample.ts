@@ -49,3 +49,21 @@ export function writeSampleCard(kbRoot: string, today: string): string {
   }
   return target;
 }
+
+/** 六个类型目录 + 一份 INDEX，让 agent 写卡片时有地方放。已存在的不动。 */
+export const TYPE_DIRS = ['thinking', 'fundamentals', 'ideas', 'pitfalls', 'life', 'glossary'];
+
+export function ensureKbScaffold(kbRoot: string): void {
+  for (const dir of TYPE_DIRS) {
+    fs.mkdirSync(path.join(kbRoot, dir), { recursive: true });
+  }
+  const index = path.join(kbRoot, 'INDEX.md');
+  if (!fs.existsSync(index)) {
+    fs.writeFileSync(
+      index,
+      '# 卡片索引\n\n一行一条。写入、更新、删除卡片后同步这里。\n\n' +
+        '- [标题](thinking/example.md) — thinking | 一句话钩子\n',
+      'utf8'
+    );
+  }
+}

@@ -1,0 +1,65 @@
+name: personal-kb Release
+
+# 打 v* 的 tag 就发版；PAT 存在仓库 Secrets 里的 VSCE_PAT
+# GitHub 只认仓库根的 .github/workflows/，所以这个文件放在根，用 working-directory 进子目录。
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: personal-kb-vscode
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm ci
+
+      - name: 版本号必须和 tag 一致
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG=$(node -p "require('./package.json').version")
+          if [ "$TAG" != "$PKG" ]; then
+            echo "tag 是 v$TAG，package.json 是 $PKG，不一致，拒绝发版" >&2
+            exit 1
+          fi
+
+      - name: CHANGELOG 必须写了这一版
+        run: |
+          PKG=$(node -p "require('./package.json').version")
+          grep -q "## \[$PKG\]" CHANGELOG.md || {
+            echo "CHANGELOG.md 里没有 [$PKG] 的条目，拒绝发版" >&2
+            exit 1
+          }
+
+      - run: npm test
+
+      - run: npx vsce publish --no-dependencies --pat "$VSCE_PAT"
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: 顺手把 vsix 挂到 GitHub Release
+        run: npx vsce package --no-dependencies
+
+      - name: 取出这一版的 CHANGELOG 段落当 Release 说明
+        run: |
+          node -e "
+            const fs = require('fs');
+            const v = require('./package.json').version;
+            const all = fs.readFileSync('CHANGELOG.md', 'utf8');
+            const from = all.indexOf('## [' + v + ']');
+            const next = all.indexOf('\n## [', from + 1);
+            fs.writeFileSync('RELEASE_NOTES.md', all.slice(from, next === -1 ? undefined : next).trim() + '\n');
+          "
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: personal-kb-vscode/*.vsix
+          body_path: personal-kb-vscode/RELEASE_NOTES.md
