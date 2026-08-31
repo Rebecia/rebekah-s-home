@@ -1,8 +1,8 @@
 {
   "name": "personal-kb",
   "displayName": "Personal KB 卡片墙",
-  "description": "在和 AI 对话的过程里，总会冒出值得留下来的灵感和结论。忙完后，在当前对话里说一句「沉淀本次」之类的话，就生成一张知识卡片，帮你攒出自己的知识库。",
-  "version": "0.3.2",
+  "description": "和 AI 聊出来的灵感和结论，说一句「沉淀本次」就存成知识卡片，替你攒出自己的知识库。",
+  "version": "0.3.3",
   "publisher": "Rebekah",
   "license": "MIT",
   "icon": "media/logo.png",
